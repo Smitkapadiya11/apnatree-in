@@ -13,6 +13,39 @@ const waitlistSchema = z.object({
   tier: z.enum(["SMALL", "MEDIUM", "LARGE"]),
 });
 
+const conciergeSchema = z.object({
+  email: z.string().trim().email().max(320),
+});
+
+export async function submitConciergeCallRequest(input: unknown): Promise<ActionResult<{ ok: true }>> {
+  try {
+    const parsed = conciergeSchema.safeParse(input);
+    if (!parsed.success) {
+      return { success: false, error: "Please enter a valid email." };
+    }
+
+    const email = parsed.data.email.toLowerCase();
+
+    await prisma.waitlist.upsert({
+      where: { email },
+      create: {
+        email,
+        name: null,
+        tier: null,
+      },
+      update: {
+        email,
+      },
+    });
+
+    revalidatePath("/");
+    return { success: true, data: { ok: true } };
+  } catch (error) {
+    console.error("[submitConciergeCallRequest]", error);
+    return { success: false, error: "We could not save that right now. Please try again shortly." };
+  }
+}
+
 export async function submitWaitlist(input: unknown): Promise<ActionResult<{ ok: true }>> {
   try {
     const parsed = waitlistSchema.safeParse(input);

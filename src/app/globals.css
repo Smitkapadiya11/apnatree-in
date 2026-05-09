@@ -469,3 +469,197 @@ main#main-content.marketing-premium > section:not(.surface-cream):not(.waitlist-
     animation: none !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Kingsman marketing layer — obsidian · kesar gold · precision mono
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --obsidian-950: #05080a;
+  --obsidian-900: #090d10;
+  --obsidian-800: #0f1518;
+  --obsidian-700: #161d22;
+  --obsidian-600: #1e272e;
+  --obsidian-500: #2a363e;
+  --ivory-50: #fdfcf8;
+  --ivory-100: #f8f5ee;
+  --ivory-200: #f0ebe0;
+  --ivory-300: #e5ddd0;
+  --ivory-400: #ccc0ae;
+  --gold-primary: #b8912a;
+  --gold-light: #d4ae56;
+  --gold-pale: #e8d49a;
+  --gold-glow: rgba(184, 145, 42, 0.2);
+  --gold-line: rgba(184, 145, 42, 0.35);
+  --forest-rich: #142414;
+  --forest-deep-km: #0a1a0a;
+  --ease-kingsman: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-slow: 900ms;
+}
+
+@media (min-width: 769px) {
+  #marketing-kingsman a,
+  #marketing-kingsman button,
+  #marketing-kingsman [role="button"],
+  #marketing-kingsman input,
+  #marketing-kingsman textarea {
+    cursor: none;
+  }
+}
+
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  pointer-events: none;
+  z-index: 10051;
+  transform: translate(-50%, -50%);
+}
+
+.cursor-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--gold-primary);
+}
+
+.cursor-ring {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(184, 145, 42, 0.5);
+  transition:
+    width 0.3s var(--ease-kingsman),
+    height 0.3s var(--ease-kingsman),
+    border-color 0.3s ease,
+    background-color 0.2s ease;
+}
+
+.cursor-ring.hovering {
+  width: 64px;
+  height: 64px;
+  border-color: var(--gold-primary);
+  border-width: 1.5px;
+}
+
+.cursor-ring.clicking {
+  width: 28px;
+  height: 28px;
+  background: var(--gold-glow);
+}
+
+@keyframes km-ticker {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes km-line-grow {
+  from {
+    height: 16px;
+  }
+  to {
+    height: 40px;
+  }
+}
+
+.trust-ticker-track {
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 2rem;
+  white-space: nowrap;
+  animation: km-ticker 32s linear infinite;
+}
+
+.trust-ticker:hover .trust-ticker-track {
+  animation-play-state: paused;
+}
+
+.text-gold-kingsman {
+  background: linear-gradient(90deg, var(--gold-primary) 0%, var(--gold-pale) 45%, var(--gold-primary) 100%);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: goldPulse 6s ease infinite;
+}
+
+@keyframes goldPulse {
+  0%,
+  100% {
+    background-position: 0% center;
+  }
+  50% {
+    background-position: 100% center;
+  }
+}
+
+.font-km-mono {
+  font-family: var(--font-kingsman-mono), ui-monospace, monospace;
+}
+
+.km-grain-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+}
+
+@media (max-width: 768px) {
+  .km-grain-hero::after {
+    opacity: 0.02;
+  }
+}
+
+.km-scroll-line {
+  width: 1px;
+  height: 40px;
+  background: var(--gold-primary);
+  animation: km-line-grow 1.2s ease-in-out infinite alternate;
+}
+
+@supports (animation-timeline: scroll()) {
+  .fade-on-scroll-km {
+    animation: kmFadeIn linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 30%;
+  }
+
+  .slide-up-on-scroll-km {
+    animation: kmSlideUp linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 40%;
+  }
+
+  @keyframes kmFadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes kmSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(48px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trust-ticker-track,
+  .text-gold-kingsman,
+  .km-scroll-line {
+    animation: none !important;
+  }
+}

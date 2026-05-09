@@ -3,10 +3,9 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 
-import { PremiumButton } from "@/components/ui/PremiumButton";
+import { useLenis } from "@/contexts/LenisContext";
 import { cn } from "@/lib/utils";
 
 const links = [
@@ -14,24 +13,33 @@ const links = [
   { href: "/pricing", label: "Pricing" },
   { href: "/how-it-works", label: "How It Works" },
   { href: "/trust", label: "Trust" },
-  { href: "/faq", label: "FAQ" },
   { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
 ];
 
 export function Navbar() {
   const pathname = usePathname();
-  const reduceMotion = useReducedMotion();
+  const lenis = useLenis();
   const [open, setOpen] = React.useState(false);
-  const { scrollY } = useScroll();
   const [scrolled, setScrolled] = React.useState(false);
 
-  const isHome = pathname === "/";
-
   React.useEffect(() => {
-    const unsub = scrollY.on("change", (value) => setScrolled(value > 56));
-    return () => unsub();
-  }, [scrollY]);
+    const sync = () => {
+      const y = lenis ? lenis.scroll : window.scrollY;
+      setScrolled(y > 80);
+    };
+
+    if (lenis) {
+      lenis.on("scroll", sync);
+    } else {
+      window.addEventListener("scroll", sync, { passive: true });
+    }
+    sync();
+
+    return () => {
+      if (lenis) lenis.off("scroll", sync);
+      else window.removeEventListener("scroll", sync);
+    };
+  }, [lenis]);
 
   React.useEffect(() => {
     queueMicrotask(() => setOpen(false));
@@ -46,170 +54,150 @@ export function Navbar() {
     };
   }, [open]);
 
-  const heroTransparent = isHome && !scrolled;
-  const subtleGlassOpacity = useTransform(scrollY, [0, 96], [0.08, 0.55]);
+  const shell = scrolled
+    ? "border-b border-[color:rgba(253,252,248,0.06)] bg-[color:rgba(9,13,16,0.88)] shadow-[0_1px_0_rgba(184,145,42,0.08),0_8px_40px_rgba(5,8,10,0.4)] backdrop-blur-[32px] backdrop-saturate-[160%]"
+    : "border-b border-transparent bg-transparent";
 
   return (
     <>
-      <motion.header
-        initial={{ y: -14, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-        className={cn(
-          "fixed top-0 left-0 right-0 z-50 border-b transition-[border-color,backdrop-filter,background-color] duration-500",
-          heroTransparent ? "border-transparent" : "border-white/10 backdrop-blur-xl"
-        )}
-      >
-        {!heroTransparent ? (
-          <div
-            aria-hidden
-            className="absolute inset-0 -z-10 bg-[color:var(--brand-forest-deep)]/94"
-          />
-        ) : (
-          <motion.div
-            aria-hidden
-            className="absolute inset-0 -z-10 bg-gradient-to-b from-black/55 via-black/25 to-transparent"
-            style={reduceMotion ? { opacity: 1 } : { opacity: subtleGlassOpacity }}
-          />
-        )}
-
-        <div className="container-luxe flex items-center justify-between gap-6 py-4">
-          <Link
-            href="/"
-            className={cn(
-              "font-[family-name:var(--font-heading)] flex items-baseline gap-1 text-2xl tracking-tight transition-colors duration-300",
-              heroTransparent ? "text-[color:var(--brand-cream)]" : "text-[color:var(--brand-cream)]"
-            )}
-          >
-            <span>Apna</span>
-            <span className={cn("font-semibold", heroTransparent ? "gold-shimmer-text" : "text-gold-gradient")}>Tree</span>
-            <span
-              className={cn(
-                "align-super text-xs",
-                heroTransparent ? "text-[color:var(--brand-cream)]/55" : "text-[color:var(--brand-cream)]/50"
-              )}
-            >
-              .in
-            </span>
-          </Link>
-
-          <nav aria-label="Primary" className="hidden items-center gap-9 lg:flex">
-            {links.map((link) => {
-              const active = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={cn(
-                    "group relative text-sm transition-colors duration-300",
-                    heroTransparent
-                      ? active
-                        ? "text-white"
-                        : "text-white/78 hover:text-white"
-                      : active
-                        ? "text-[color:var(--brand-cream)]"
-                        : "text-[color:var(--brand-cream)]/70 hover:text-[color:var(--brand-cream)]"
-                  )}
-                >
-                  {link.label}
-                  <span
-                    aria-hidden
-                    className={cn(
-                      "absolute -bottom-1 left-0 h-px w-full origin-left scale-x-0 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
-                      active ? "scale-x-100" : "group-hover:scale-x-100"
-                    )}
-                    style={{ background: "var(--gradient-gold)" }}
-                  />
-                </Link>
-              );
-            })}
-          </nav>
-
-          <div className="hidden items-center gap-3 lg:flex">
+      <header className={cn("fixed top-0 left-0 right-0 z-[1000] h-[72px]", shell)}>
+        <nav
+          aria-label="Primary"
+          className="mx-auto flex h-full max-w-[1440px] items-center gap-4 px-[clamp(1.5rem,5vw,4rem)]"
+          style={{ WebkitBackdropFilter: scrolled ? "blur(32px) saturate(160%)" : undefined }}
+        >
+          <div className="flex min-w-0 flex-1 items-center justify-start">
             <Link
-              href="/login"
-              className={cn(
-                "text-sm transition-colors",
-                heroTransparent ? "text-white/78 hover:text-white" : "text-[color:var(--brand-cream)]/72 hover:text-[color:var(--brand-cream)]"
-              )}
+              href="/"
+              data-cursor="hover"
+              className="flex items-center gap-3 text-[color:var(--ivory-50)]"
             >
-              Sign in
+              <span className="font-[family-name:var(--font-body)] text-[0.9rem] font-medium tracking-[0.2em]">
+                APNA
+              </span>
+              <span aria-hidden className="h-3.5 w-px bg-[color:rgba(184,145,42,0.35)] opacity-60" />
+              <span className="font-[family-name:var(--font-body)] text-[0.9rem] font-medium tracking-[0.2em] text-[color:var(--gold-light)]">
+                TREE
+              </span>
             </Link>
-            <PremiumButton href="/trees" size="sm" tone={heroTransparent ? "glass" : "gold"}>
-              Reserve
-            </PremiumButton>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setOpen((value) => !value)}
-            aria-label={open ? "Close menu" : "Open menu"}
-            aria-expanded={open}
-            aria-controls="mobile-nav"
-            className={cn(
-              "min-touch inline-flex items-center justify-center rounded-full border px-3 py-2 transition-colors lg:hidden",
-              heroTransparent
-                ? "border-white/35 bg-white/10 text-white backdrop-blur-md hover:border-white/55 hover:bg-white/15"
-                : "border-white/18 bg-white/8 text-[color:var(--brand-cream)] backdrop-blur-md hover:border-[color:var(--brand-gold)]/45"
-            )}
-          >
-            {open ? <X className="size-5" /> : <Menu className="size-5" />}
-          </button>
-        </div>
-      </motion.header>
-
-      <AnimatePresence>
-        {open ? (
-          <motion.div
-            id="mobile-nav"
-            key="mobile-nav"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 lg:hidden"
-          >
-            <button
-              type="button"
-              aria-label="Dismiss navigation"
-              onClick={() => setOpen(false)}
-              className="absolute inset-0 bg-black/55 backdrop-blur-[2px]"
-            />
-            <motion.nav
-              initial={{ y: "-105%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "-105%" }}
-              transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute inset-x-0 top-0 max-h-[min(92vh,920px)] overflow-y-auto border-b border-white/12 bg-[color:var(--brand-forest-deep)] px-6 pb-12 pt-24 shadow-[0_40px_120px_rgba(3,8,3,0.65)]"
-              aria-label="Mobile primary"
-            >
-              <p className="eyebrow mb-4 text-[color:var(--brand-gold-light)]">Navigate</p>
-              <ul className="flex flex-col gap-1">
-                {links.map((link) => (
-                  <li key={link.href} className="border-b border-white/10 last:border-b-0">
+          <div className="hidden flex-[1.4] items-center justify-center lg:flex">
+            <ul className="flex items-center gap-10">
+              {links.map((link) => {
+                const active = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
+                return (
+                  <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="font-[family-name:var(--font-heading)] block py-4 text-3xl text-[color:var(--brand-cream)] transition-colors hover:text-[color:var(--brand-gold-light)]"
+                      data-cursor="hover"
+                      className={cn(
+                        "font-[family-name:var(--font-body)] relative pb-1 text-[0.78rem] tracking-[0.06em] transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-[color:var(--gold-primary)] after:transition-transform after:duration-300 after:ease-out hover:after:scale-x-100",
+                        active
+                          ? "text-[color:var(--ivory-50)] after:scale-x-100"
+                          : "text-[color:rgba(253,252,248,0.5)] hover:text-[color:rgba(253,252,248,0.95)]"
+                      )}
                     >
                       {link.label}
                     </Link>
                   </li>
-                ))}
-              </ul>
-              <div className="mt-10 flex flex-col gap-3">
-                <PremiumButton href="/trees" tone="gold" size="lg" className="w-full">
-                  Reserve a tree
-                </PremiumButton>
-                <PremiumButton href="/login" tone="glass" size="md" className="w-full">
-                  Sign in
-                </PremiumButton>
-              </div>
-              <p className="mt-12 text-xs text-[color:var(--brand-cream)]/45">© {new Date().getFullYear()} ApnaTree.in</p>
-            </motion.nav>
+                );
+              })}
+            </ul>
+          </div>
+
+          <div className="flex flex-1 items-center justify-end gap-5">
+            <Link
+              href="/login"
+              data-cursor="hover"
+              className="font-km-mono hidden text-[0.65rem] tracking-[0.2em] text-[color:rgba(253,252,248,0.38)] transition-colors hover:text-[color:var(--ivory-100)] sm:inline-flex sm:items-center sm:gap-2"
+            >
+              SIGN IN <span aria-hidden>→</span>
+            </Link>
+            <span aria-hidden className="hidden h-4 w-px bg-[color:rgba(253,252,248,0.14)] sm:block" />
+            <Link
+              href="/trees"
+              data-cursor="hover"
+              className="font-km-mono hidden rounded-[4px] bg-[color:var(--gold-primary)] px-5 py-2.5 text-[0.65rem] tracking-[0.2em] text-[color:var(--obsidian-950)] transition-colors hover:bg-[color:var(--gold-light)] md:inline-block"
+            >
+              RESERVE
+            </Link>
+
+            <button
+              type="button"
+              data-cursor="hover"
+              aria-label={open ? "Close menu" : "Open menu"}
+              aria-expanded={open}
+              aria-controls="km-mobile-nav"
+              onClick={() => setOpen((v) => !v)}
+              className="relative flex h-11 w-11 flex-col items-center justify-center gap-[5px] lg:hidden"
+            >
+              <motion.span
+                animate={open ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                className="block h-px w-5 bg-[color:rgba(253,252,248,0.55)]"
+              />
+              <motion.span
+                animate={open ? { opacity: 0 } : { opacity: 1 }}
+                transition={{ duration: 0.25 }}
+                className="block h-px w-5 bg-[color:rgba(253,252,248,0.55)]"
+              />
+              <motion.span
+                animate={open ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                className="block h-px w-5 bg-[color:rgba(253,252,248,0.55)]"
+              />
+            </button>
+          </div>
+        </nav>
+      </header>
+
+      <AnimatePresence>
+        {open ? (
+          <motion.div
+            id="km-mobile-nav"
+            initial={{ y: "-100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "-100%" }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed inset-x-0 top-0 z-[999] flex max-h-[100svh] flex-col bg-[var(--obsidian-900)] px-8 pb-12 pt-28 lg:hidden"
+          >
+            <ul className="flex flex-1 flex-col items-center justify-center gap-6">
+              {links.map((link, i) => (
+                <motion.li
+                  key={link.href}
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.08, duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <Link
+                    href={link.href}
+                    data-cursor="hover"
+                    onClick={() => setOpen(false)}
+                    className="font-[family-name:var(--font-heading)] text-[clamp(3rem,8vw,5rem)] font-light text-[color:var(--ivory-50)]"
+                  >
+                    {link.label}
+                  </Link>
+                </motion.li>
+              ))}
+            </ul>
+            <div className="mx-auto mb-10 h-px w-[min(420px,88vw)] bg-[color:rgba(184,145,42,0.35)]" />
+            <p className="font-km-mono text-center text-[0.7rem] tracking-[0.12em] text-[color:rgba(253,252,248,0.38)]">
+              concierge@apnatree.in · +91 285 123 4567
+            </p>
+            <Link
+              href="/trees"
+              data-cursor="hover"
+              onClick={() => setOpen(false)}
+              className="font-km-mono mt-8 block w-full rounded-[4px] bg-[color:var(--gold-primary)] py-4 text-center text-[0.65rem] tracking-[0.22em] text-[color:var(--obsidian-950)]"
+            >
+              RESERVE →
+            </Link>
           </motion.div>
         ) : null}
       </AnimatePresence>
 
-      <div aria-hidden className="h-[68px]" />
+      <div aria-hidden className="h-[72px]" />
     </>
   );
 }

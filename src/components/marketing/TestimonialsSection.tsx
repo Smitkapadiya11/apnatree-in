@@ -1,98 +1,98 @@
 import Image from "next/image";
-import { Quote } from "lucide-react";
 
-import { ScrollReveal } from "@/components/shared/ScrollReveal";
-import { StaggerGroup, StaggerItem } from "@/components/shared/StaggerGroup";
-import { FARM_MEDIA, FARM_MEDIA_FALLBACKS } from "@/lib/farm-media";
+import { KINGSMAN_MEDIA } from "@/lib/kingsman-media";
 
 type Testimonial = {
   body: string;
   author: string;
   meta: string;
-  highlight?: boolean;
+  image: string;
 };
 
-const TESTIMONIALS: Testimonial[] = [
+const ROWS: Testimonial[] = [
   {
     body: "The bi-weekly chronicles felt like postcards from a friend tending our family. By the time the crate landed in Bengaluru, we already knew every blossom.",
     author: "Anjali & Pranav",
-    meta: "Medium tier · Bengaluru steward",
-    highlight: true,
+    meta: "MEDIUM TIER · BENGALURU STEWARD",
+    image: KINGSMAN_MEDIA.grove555,
   },
   {
     body: "I rented a single tree for my mother. The visit on her birthday — the way the team welcomed us with limewater under our own canopy — that stayed.",
     author: "Captain Devraj Singh",
-    meta: "Small tier · Pune steward",
+    meta: "SMALL TIER · PUNE STEWARD",
+    image: KINGSMAN_MEDIA.grove533,
   },
   {
-    body: "I asked for an agronomist call before signing. They put Bharatbhai on the phone within an hour. The yield on our Large tree exceeded the upper estimate by 14%.",
+    body: "I asked for an agronomist call before signing. They put Bharatbhai on the phone within an hour. The yield on our Large tree exceeded the upper estimate by fourteen percent.",
     author: "Niloufer K.",
-    meta: "Large tier · Mumbai steward",
+    meta: "LARGE TIER · MUMBAI STEWARD",
+    image: KINGSMAN_MEDIA.grove0320,
   },
 ];
 
 export function TestimonialsSection() {
-  const portrait = FARM_MEDIA.team[0] ?? FARM_MEDIA_FALLBACKS.gallery;
-
   return (
-    <section className="relative section-luxe bg-[color:var(--brand-ivory)]">
-      <ScrollReveal className="container-luxe text-center">
-        <p className="eyebrow">Postcards from stewards</p>
-        <h2 className="font-[family-name:var(--font-heading)] mt-4 text-balance text-4xl tracking-tight sm:text-5xl text-[color:var(--brand-forest)]">
-          Renters who recognise the soil
+    <section className="bg-[var(--ivory-50)] px-[clamp(1.5rem,5vw,4rem)] py-[clamp(6rem,11vw,10rem)] text-[color:var(--obsidian-900)]">
+      <div className="mx-auto max-w-[1200px] text-center">
+        <p className="font-km-mono text-[0.62rem] tracking-[0.26em] text-[color:var(--gold-primary)]">EDITORIAL</p>
+        <h2 className="font-[family-name:var(--font-heading)] mt-5 text-[clamp(2rem,4vw,3.25rem)] font-light text-[color:var(--obsidian-900)]">
+          Voices from the ledger.
         </h2>
-      </ScrollReveal>
+      </div>
 
-      <StaggerGroup className="container-luxe mt-16 grid gap-6 lg:grid-cols-3">
-        {TESTIMONIALS.map((testimonial, index) => (
-          <StaggerItem
-            key={testimonial.author}
-            className={index === 0 ? "lg:col-span-1" : "lg:col-span-1"}
-          >
-            <article
-              className={
-                "relative flex h-full flex-col gap-6 overflow-hidden rounded-[var(--radius-2xl)] border p-8 transition-all duration-500 hover:-translate-y-1 hover:shadow-[var(--shadow-luxe)] " +
-                (testimonial.highlight
-                  ? "border-[color:var(--brand-gold)]/35 bg-[color:var(--brand-cream)] shadow-[var(--shadow-soft)]"
-                  : "border-[color:var(--brand-forest)]/10 bg-white shadow-[var(--shadow-soft)]")
-              }
-            >
-              <Quote
+      <div className="mx-auto mt-16 max-w-[1100px]">
+        {ROWS.map((row, index) => {
+          const imageLeft = index % 2 === 1;
+          const quoteCol = (
+            <div className={`relative flex flex-col justify-center gap-8 ${imageLeft ? "lg:order-2" : ""}`}>
+              <span
                 aria-hidden
-                className="size-7 text-[color:var(--brand-gold)]"
-              />
-              <p className="font-[family-name:var(--font-heading)] text-xl leading-relaxed text-[color:var(--brand-forest)]">
-                “{testimonial.body}”
-              </p>
-              <footer className="mt-auto">
-                <p className="font-semibold text-sm text-[color:var(--brand-forest)]">{testimonial.author}</p>
-                <p className="text-xs uppercase tracking-[0.25em] text-[color:var(--muted-foreground)]">{testimonial.meta}</p>
-              </footer>
-            </article>
-          </StaggerItem>
-        ))}
-      </StaggerGroup>
+                className="font-[family-name:var(--font-heading)] pointer-events-none absolute -left-2 -top-6 text-[8rem] leading-none text-[color:rgba(184,145,42,0.15)] md:left-0 md:-top-10"
+              >
+                “
+              </span>
+              <blockquote className="fade-on-scroll-km slide-up-on-scroll-km relative max-w-[520px] font-[family-name:var(--font-heading)] text-[clamp(1.45rem,2.5vw,2rem)] font-light italic leading-snug text-[color:rgba(9,13,16,0.82)]">
+                {row.body}
+              </blockquote>
+              <div className="space-y-3">
+                <div className="h-px w-8 bg-[color:var(--gold-primary)]" aria-hidden />
+                <p className="font-[family-name:var(--font-body)] text-[0.9rem] font-medium text-[color:var(--obsidian-900)]">
+                  {row.author}
+                </p>
+                <p className="font-km-mono text-[0.6rem] tracking-[0.15em] text-[color:rgba(9,13,16,0.42)]">{row.meta}</p>
+              </div>
+            </div>
+          );
 
-      <ScrollReveal className="container-luxe mt-20 grid gap-10 rounded-[var(--radius-2xl)] border border-[color:var(--brand-gold)]/20 bg-[color:var(--brand-forest)] p-8 text-[color:var(--brand-cream)] sm:p-12 lg:grid-cols-[auto,1fr] lg:items-center">
-        <div className="relative size-32 overflow-hidden rounded-full ring-4 ring-[color:var(--brand-gold)]/40 sm:size-40 lg:size-48">
-          <Image
-            src={portrait}
-            alt="Field steward portrait"
-            fill
-            sizes="(max-width: 768px) 128px, 192px"
-            className="object-cover"
-          />
-        </div>
-        <div className="space-y-4">
-          <p className="eyebrow text-[color:var(--brand-gold-light)]">Live concierge</p>
-          <p className="font-[family-name:var(--font-heading)] text-3xl leading-snug">
-            Talk to a real grove keeper before you commit. Calls scheduled inside 24 hours, always in your timezone.
-          </p>
-          <p className="text-sm text-[color:var(--brand-cream)]/80">
-            Concierge desk · Mon–Sat · 9am–7pm IST
-          </p>
-        </div>
-      </ScrollReveal>
+          const imageCol = (
+            <div className={`relative aspect-[4/3] w-full overflow-hidden rounded-[8px] ${imageLeft ? "lg:order-1" : ""}`}>
+              <Image src={row.image} alt="" fill sizes="(max-width:1024px) 100vw, 45vw" className="object-cover" />
+              <div className="pointer-events-none absolute inset-0 bg-[rgba(9,13,16,0.15)]" aria-hidden />
+            </div>
+          );
+
+          return (
+            <div key={row.author}>
+              <div className="grid gap-12 py-16 lg:grid-cols-[45%_55%] lg:items-center lg:gap-16">
+                {imageLeft ? (
+                  <>
+                    {imageCol}
+                    {quoteCol}
+                  </>
+                ) : (
+                  <>
+                    {quoteCol}
+                    {imageCol}
+                  </>
+                )}
+              </div>
+              {index < ROWS.length - 1 ? (
+                <div className="h-px w-full bg-[color:var(--ivory-300)]" aria-hidden />
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
     </section>
   );
 }
