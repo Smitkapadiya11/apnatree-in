@@ -17,7 +17,19 @@ const envSchema = z.object({
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().startsWith("pk_"),
 });
 
-export const env = envSchema.parse({
-  ...process.env,
-  FROM_EMAIL: process.env.FROM_EMAIL ?? "hello@apnatree.in",
-});
+const skipValidation = process.env.SKIP_ENV_VALIDATION === "1";
+
+function loadEnv(): z.infer<typeof envSchema> {
+  const merged = {
+    ...process.env,
+    FROM_EMAIL: process.env.FROM_EMAIL ?? "hello@apnatree.in",
+  };
+
+  if (skipValidation) {
+    return merged as z.infer<typeof envSchema>;
+  }
+
+  return envSchema.parse(merged);
+}
+
+export const env = loadEnv();
