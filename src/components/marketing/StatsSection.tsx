@@ -1,11 +1,7 @@
-import Image from "next/image";
-
 import { getCachedSiteConfigValue } from "@/lib/cache/queries";
 
-import { AnimatedCounter } from "@/components/marketing/AnimatedCounter";
-import { ScrollReveal } from "@/components/shared/ScrollReveal";
-import { StaggerGroup, StaggerItem } from "@/components/shared/StaggerGroup";
-import { FARM_MEDIA } from "@/lib/farm-media";
+import { StatsScene, type StatsQuote } from "@/components/marketing/StatsScene";
+import { FARM_MEDIA, getImage, getVideo } from "@/lib/farm-media";
 
 async function resolveStat(key: string, fallback: number) {
   const raw = await getCachedSiteConfigValue(key);
@@ -13,83 +9,37 @@ async function resolveStat(key: string, fallback: number) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
-const QUOTE = {
+const QUOTE: StatsQuote = {
   body: "We don't mass-produce stewardship. Every Kesar tree gets a name, a number, and a phone call before harvest.",
   author: "Bharatbhai Solanki",
   role: "Lead orchard agronomist · 22 years in Gir",
 };
 
 export async function StatsSection() {
-  const [trees, renters, visits, kgDelivered] = await Promise.all([
+  const [trees, renters, visits, kgDelivered, groveYears] = await Promise.all([
     resolveStat("marketing_stat_trees", 150),
     resolveStat("marketing_stat_renters", 87),
     resolveStat("marketing_stat_visits_quota", 3),
     resolveStat("marketing_stat_kg_delivered", 4200),
+    resolveStat("marketing_stat_grove_years", 12),
   ]);
 
-  const textureSrc =
-    FARM_MEDIA.sunrise[0] ?? FARM_MEDIA.orchard[0] ?? FARM_MEDIA.gallery[0];
+  const videoSrc = getVideo("harvest") ?? getVideo("trees");
+  const fallbackImage =
+    FARM_MEDIA.images.harvest.length > 0
+      ? getImage(FARM_MEDIA.images.harvest, 0)
+      : getImage(FARM_MEDIA.gallery, 0);
 
   return (
-    <section
-      className="relative section-luxe overflow-hidden text-[color:var(--brand-cream)]"
-      style={{ background: "var(--gradient-hero)" }}
-    >
-      {textureSrc && !FARM_MEDIA.isEmpty ? (
-        <Image
-          src={textureSrc}
-          alt=""
-          fill
-          aria-hidden
-          sizes="100vw"
-          quality={55}
-          className="pointer-events-none object-cover opacity-[0.18] mix-blend-soft-light"
-        />
-      ) : null}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-30"
-        style={{
-          backgroundImage:
-            "radial-gradient(ellipse at 30% 20%, color-mix(in oklab, var(--brand-gold) 25%, transparent), transparent 55%), radial-gradient(ellipse at 80% 90%, color-mix(in oklab, var(--brand-gold-light) 22%, transparent), transparent 60%)",
-        }}
-      />
-
-      <ScrollReveal className="container-luxe relative text-center">
-        <p className="eyebrow text-[color:var(--brand-gold-light)]">Numbers from SiteConfig</p>
-        <h2 className="font-[family-name:var(--font-heading)] mt-4 text-balance text-4xl tracking-tight sm:text-5xl">
-          Transparency, cached and ISR-ready
-        </h2>
-        <p className="mx-auto mt-6 max-w-2xl text-pretty text-base leading-relaxed text-[color:var(--brand-cream)]/80">
-          Every metric below revalidates on a five-minute cadence — sourced from production telemetry, not marketing copy.
-        </p>
-      </ScrollReveal>
-
-      <StaggerGroup className="container-luxe relative mt-16 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-        <StaggerItem>
-          <AnimatedCounter label="Standing trees" value={trees} suffix="+" />
-        </StaggerItem>
-        <StaggerItem>
-          <AnimatedCounter label="Active renters" value={renters} suffix="+" />
-        </StaggerItem>
-        <StaggerItem>
-          <AnimatedCounter label="Annual visits" value={visits} suffix="" />
-        </StaggerItem>
-        <StaggerItem>
-          <AnimatedCounter label="Kg delivered" value={kgDelivered} suffix="+" />
-        </StaggerItem>
-      </StaggerGroup>
-
-      <ScrollReveal className="container-luxe relative mt-20 max-w-3xl">
-        <figure className="border-l-2 border-[color:var(--brand-gold)] pl-6 sm:pl-10">
-          <blockquote className="font-[family-name:var(--font-heading)] text-2xl italic leading-relaxed text-[color:var(--brand-cream)] sm:text-3xl">
-            “{QUOTE.body}”
-          </blockquote>
-          <figcaption className="mt-5 text-sm text-[color:var(--brand-cream)]/75">
-            <span className="font-semibold">{QUOTE.author}</span> · {QUOTE.role}
-          </figcaption>
-        </figure>
-      </ScrollReveal>
-    </section>
+    <StatsScene
+      trees={trees}
+      renters={renters}
+      visits={visits}
+      kgDelivered={kgDelivered}
+      groveYears={groveYears}
+      videoSrc={videoSrc}
+      fallbackImage={fallbackImage}
+      quote={QUOTE}
+    />
   );
 }

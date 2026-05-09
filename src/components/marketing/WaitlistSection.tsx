@@ -44,7 +44,7 @@ export function WaitlistSection() {
   return (
     <section
       id="waitlist"
-      className="relative section-luxe overflow-hidden text-[color:var(--brand-cream)]"
+      className="waitlist-gold-surface relative section-luxe overflow-hidden text-[color:var(--brand-cream)]"
       style={{ background: "var(--gradient-hero)" }}
     >
       <span

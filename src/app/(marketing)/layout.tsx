@@ -15,7 +15,7 @@ export default function MarketingLayout({
         Skip to content
       </a>
       <Navbar />
-      <main id="main-content" className="flex-1">
+      <main id="main-content" className="marketing-premium flex-1">
         {children}
       </main>
       <Footer />

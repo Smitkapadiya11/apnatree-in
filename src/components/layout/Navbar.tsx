@@ -26,8 +26,10 @@ export function Navbar() {
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = React.useState(false);
 
+  const isHome = pathname === "/";
+
   React.useEffect(() => {
-    const unsub = scrollY.on("change", (value) => setScrolled(value > 32));
+    const unsub = scrollY.on("change", (value) => setScrolled(value > 56));
     return () => unsub();
   }, [scrollY]);
 
@@ -44,34 +46,51 @@ export function Navbar() {
     };
   }, [open]);
 
-  const opacity = useTransform(scrollY, [0, 80], [0.65, 0.92]);
+  const heroTransparent = isHome && !scrolled;
+  const subtleGlassOpacity = useTransform(scrollY, [0, 96], [0.08, 0.55]);
 
   return (
     <>
       <motion.header
-        initial={{ y: -16, opacity: 0 }}
+        initial={{ y: -14, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-[backdrop-filter,border-color] duration-500",
-          scrolled
-            ? "border-b border-[color:var(--brand-gold)]/15 backdrop-blur-xl"
-            : "border-b border-transparent backdrop-blur-md"
+          "fixed top-0 left-0 right-0 z-50 border-b transition-[border-color,backdrop-filter,background-color] duration-500",
+          heroTransparent ? "border-transparent" : "border-white/10 backdrop-blur-xl"
         )}
       >
-        <motion.div
-          aria-hidden
-          className="absolute inset-0 -z-10 bg-[color:var(--brand-cream)]"
-          style={reduceMotion ? { opacity: 0.92 } : { opacity }}
-        />
+        {!heroTransparent ? (
+          <div
+            aria-hidden
+            className="absolute inset-0 -z-10 bg-[color:var(--brand-forest-deep)]/94"
+          />
+        ) : (
+          <motion.div
+            aria-hidden
+            className="absolute inset-0 -z-10 bg-gradient-to-b from-black/55 via-black/25 to-transparent"
+            style={reduceMotion ? { opacity: 1 } : { opacity: subtleGlassOpacity }}
+          />
+        )}
+
         <div className="container-luxe flex items-center justify-between gap-6 py-4">
           <Link
             href="/"
-            className="font-[family-name:var(--font-heading)] flex items-baseline gap-1 text-2xl tracking-tight text-[color:var(--brand-forest)]"
+            className={cn(
+              "font-[family-name:var(--font-heading)] flex items-baseline gap-1 text-2xl tracking-tight transition-colors duration-300",
+              heroTransparent ? "text-[color:var(--brand-cream)]" : "text-[color:var(--brand-cream)]"
+            )}
           >
             <span>Apna</span>
-            <span className="text-gold-gradient font-semibold">Tree</span>
-            <span className="text-[color:var(--brand-forest)]/55 text-xs align-super">.in</span>
+            <span className={cn("font-semibold", heroTransparent ? "gold-shimmer-text" : "text-gold-gradient")}>Tree</span>
+            <span
+              className={cn(
+                "align-super text-xs",
+                heroTransparent ? "text-[color:var(--brand-cream)]/55" : "text-[color:var(--brand-cream)]/50"
+              )}
+            >
+              .in
+            </span>
           </Link>
 
           <nav aria-label="Primary" className="hidden items-center gap-9 lg:flex">
@@ -83,9 +102,13 @@ export function Navbar() {
                   href={link.href}
                   className={cn(
                     "group relative text-sm transition-colors duration-300",
-                    active
-                      ? "text-[color:var(--brand-forest)]"
-                      : "text-[color:var(--brand-forest)]/65 hover:text-[color:var(--brand-forest)]"
+                    heroTransparent
+                      ? active
+                        ? "text-white"
+                        : "text-white/78 hover:text-white"
+                      : active
+                        ? "text-[color:var(--brand-cream)]"
+                        : "text-[color:var(--brand-cream)]/70 hover:text-[color:var(--brand-cream)]"
                   )}
                 >
                   {link.label}
@@ -105,11 +128,14 @@ export function Navbar() {
           <div className="hidden items-center gap-3 lg:flex">
             <Link
               href="/login"
-              className="text-sm text-[color:var(--brand-forest)]/70 hover:text-[color:var(--brand-forest)] transition-colors"
+              className={cn(
+                "text-sm transition-colors",
+                heroTransparent ? "text-white/78 hover:text-white" : "text-[color:var(--brand-cream)]/72 hover:text-[color:var(--brand-cream)]"
+              )}
             >
               Sign in
             </Link>
-            <PremiumButton href="/trees" size="sm" tone="forest">
+            <PremiumButton href="/trees" size="sm" tone={heroTransparent ? "glass" : "gold"}>
               Reserve
             </PremiumButton>
           </div>
@@ -120,7 +146,12 @@ export function Navbar() {
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             aria-controls="mobile-nav"
-            className="min-touch inline-flex items-center justify-center rounded-full border border-[color:var(--brand-forest)]/15 bg-[color:var(--brand-ivory)] text-[color:var(--brand-forest)] transition-colors hover:border-[color:var(--brand-gold)]/60 lg:hidden"
+            className={cn(
+              "min-touch inline-flex items-center justify-center rounded-full border px-3 py-2 transition-colors lg:hidden",
+              heroTransparent
+                ? "border-white/35 bg-white/10 text-white backdrop-blur-md hover:border-white/55 hover:bg-white/15"
+                : "border-white/18 bg-white/8 text-[color:var(--brand-cream)] backdrop-blur-md hover:border-[color:var(--brand-gold)]/45"
+            )}
           >
             {open ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
@@ -141,22 +172,23 @@ export function Navbar() {
               type="button"
               aria-label="Dismiss navigation"
               onClick={() => setOpen(false)}
-              className="absolute inset-0 bg-[color:var(--brand-forest)]/40 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/55 backdrop-blur-[2px]"
             />
-            <motion.aside
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute right-0 top-0 flex h-full w-[min(380px,86vw)] flex-col overflow-y-auto bg-[color:var(--brand-cream)] px-6 pb-10 pt-24 shadow-[var(--shadow-luxe)]"
+            <motion.nav
+              initial={{ y: "-105%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "-105%" }}
+              transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute inset-x-0 top-0 max-h-[min(92vh,920px)] overflow-y-auto border-b border-white/12 bg-[color:var(--brand-forest-deep)] px-6 pb-12 pt-24 shadow-[0_40px_120px_rgba(3,8,3,0.65)]"
+              aria-label="Mobile primary"
             >
-              <p className="eyebrow mb-3">Navigate</p>
-              <ul className="flex flex-col">
+              <p className="eyebrow mb-4 text-[color:var(--brand-gold-light)]">Navigate</p>
+              <ul className="flex flex-col gap-1">
                 {links.map((link) => (
-                  <li key={link.href} className="border-b border-[color:var(--brand-forest)]/10 last:border-b-0">
+                  <li key={link.href} className="border-b border-white/10 last:border-b-0">
                     <Link
                       href={link.href}
-                      className="font-[family-name:var(--font-heading)] block py-4 text-3xl text-[color:var(--brand-forest)] transition-colors hover:text-[color:var(--brand-gold-dark)]"
+                      className="font-[family-name:var(--font-heading)] block py-4 text-3xl text-[color:var(--brand-cream)] transition-colors hover:text-[color:var(--brand-gold-light)]"
                     >
                       {link.label}
                     </Link>
@@ -167,14 +199,12 @@ export function Navbar() {
                 <PremiumButton href="/trees" tone="gold" size="lg" className="w-full">
                   Reserve a tree
                 </PremiumButton>
-                <PremiumButton href="/login" tone="outline" size="md" className="w-full">
+                <PremiumButton href="/login" tone="glass" size="md" className="w-full">
                   Sign in
                 </PremiumButton>
               </div>
-              <p className="text-muted-foreground mt-auto pt-10 text-xs">
-                © {new Date().getFullYear()} ApnaTree.in
-              </p>
-            </motion.aside>
+              <p className="mt-12 text-xs text-[color:var(--brand-cream)]/45">© {new Date().getFullYear()} ApnaTree.in</p>
+            </motion.nav>
           </motion.div>
         ) : null}
       </AnimatePresence>

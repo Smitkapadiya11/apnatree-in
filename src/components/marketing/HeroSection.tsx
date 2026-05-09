@@ -1,29 +1,14 @@
-import { HeroBackdrop } from "@/components/marketing/HeroBackdrop";
-import { HeroBackgroundMedia } from "@/components/marketing/HeroBackgroundMedia";
-import { HeroContent } from "@/components/marketing/HeroContent";
-import { FARM_MEDIA, FARM_MEDIA_FALLBACKS } from "@/lib/farm-media";
+import { HeroCinematic } from "@/components/marketing/HeroCinematic";
+import { FARM_MEDIA, FARM_MEDIA_FALLBACKS, getImage } from "@/lib/farm-media";
 
 export function HeroSection() {
-  const videoSrc = FARM_MEDIA.hero.video;
   const fallbackImage = FARM_MEDIA.hero.fallbackImage ?? FARM_MEDIA_FALLBACKS.hero;
+  const heroVideo = FARM_MEDIA.hero.video ?? FARM_MEDIA.videos.hero;
+  const posterImage = getImage(FARM_MEDIA.images.hero, 0);
+  const storyClip =
+    FARM_MEDIA.videos.all.length > 1 ? FARM_MEDIA.videos.all[1] : FARM_MEDIA.videos.all[0] ?? null;
 
   return (
-    <section
-      aria-labelledby="hero-heading"
-      className="relative isolate min-h-[100svh] overflow-hidden bg-[color:var(--brand-forest)] text-white"
-    >
-      <div className="absolute inset-0">
-        <HeroBackgroundMedia
-          videoSrc={videoSrc}
-          posterSrc={fallbackImage}
-          posterAlt="Kesar mango orchard on the Gir limestone ridge — field photography from ApnaTree"
-        />
-        <HeroBackdrop />
-      </div>
-
-      <div className="relative container-luxe flex min-h-[100svh] flex-col justify-end pb-16 pt-32 sm:pt-40">
-        <HeroContent />
-      </div>
-    </section>
+    <HeroCinematic heroVideo={heroVideo} fallbackImage={fallbackImage} posterImage={posterImage} storyVideo={storyClip} />
   );
 }

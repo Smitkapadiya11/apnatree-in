@@ -28,15 +28,18 @@ const BADGES = [
 
 export function TrustBadgesStrip() {
   return (
-    <section className="relative border-y border-[color:var(--brand-gold)]/15 bg-[color:var(--brand-cream)]">
+    <section
+      className="relative border-y border-[color:var(--brand-gold)]/25"
+      style={{ backgroundColor: "#0D1A0D" }}
+    >
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-px"
-        style={{ background: "var(--gradient-gold)", opacity: 0.55 }}
+        className="pointer-events-none absolute inset-x-0 top-0 h-px opacity-70"
+        style={{ background: "var(--gradient-gold)" }}
       />
       <ScrollReveal className="container-luxe py-16">
-        <p className="eyebrow text-center">Built on guardrails</p>
-        <h2 className="font-[family-name:var(--font-heading)] mt-3 text-center text-3xl tracking-tight sm:text-4xl text-[color:var(--brand-forest)]">
+        <p className="eyebrow text-center text-[color:var(--brand-gold-light)]">Built on guardrails</p>
+        <h2 className="font-[family-name:var(--font-heading)] mt-3 text-center text-3xl tracking-tight text-[color:var(--brand-cream)] sm:text-4xl">
           Trust that scales with the harvest
         </h2>
       </ScrollReveal>
@@ -44,15 +47,13 @@ export function TrustBadgesStrip() {
         {BADGES.map((badge) => (
           <StaggerItem key={badge.title} className="space-y-3">
             <div
-              className="inline-flex size-12 items-center justify-center rounded-full border border-[color:var(--brand-gold)]/30 bg-[color:var(--brand-ivory)] text-[color:var(--brand-gold-dark)]"
+              className="inline-flex size-12 items-center justify-center rounded-full border border-[color:var(--brand-gold)]/35 bg-white/[0.06] text-[color:var(--brand-gold-light)] backdrop-blur-sm"
               aria-hidden
             >
               <badge.icon className="size-5" />
             </div>
-            <h3 className="font-[family-name:var(--font-heading)] text-xl text-[color:var(--brand-forest)]">
-              {badge.title}
-            </h3>
-            <p className="text-[color:var(--muted-foreground)] text-sm leading-relaxed">{badge.copy}</p>
+            <h3 className="font-[family-name:var(--font-heading)] text-xl text-[color:var(--brand-cream)]">{badge.title}</h3>
+            <p className="text-sm leading-relaxed text-[color:var(--brand-cream)]/72">{badge.copy}</p>
           </StaggerItem>
         ))}
       </StaggerGroup>

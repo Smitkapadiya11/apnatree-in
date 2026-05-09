@@ -1,69 +1,92 @@
-import Image from "next/image";
-
 import { ScrollReveal } from "@/components/shared/ScrollReveal";
-import { StaggerGroup, StaggerItem } from "@/components/shared/StaggerGroup";
-import { FARM_MEDIA, FARM_MEDIA_FALLBACKS } from "@/lib/farm-media";
-import { cn } from "@/lib/utils";
+import { FarmGalleryMosaic, type GalleryCell } from "@/components/marketing/FarmGalleryMosaic";
+import { FARM_MEDIA, FARM_MEDIA_FALLBACKS, getImage } from "@/lib/farm-media";
 
-const TILE_SIZES = [
-  { className: "lg:col-span-2 lg:row-span-2 aspect-[4/5] sm:aspect-[6/7] lg:aspect-auto" },
-  { className: "aspect-[5/4]" },
-  { className: "aspect-[5/4]" },
-  { className: "aspect-[5/4]" },
-  { className: "aspect-[5/4]" },
-];
+function buildCells(): GalleryCell[] {
+  const imgs = FARM_MEDIA.gallery.length > 0 ? FARM_MEDIA.gallery : [FARM_MEDIA_FALLBACKS.gallery];
+  const vids = FARM_MEDIA.videos.all;
+  const v0 = vids[0] ?? null;
+  const v1 = vids.length > 1 ? vids[1] : null;
 
-const TILE_ALTS = [
-  "Wide view of the Kesar mango orchard along the Gir ridge",
-  "Sun-warmed canopy and understory on the farm",
-  "Ripe Kesar mangoes hanging from leased orchard trees",
-  "Close detail of fruit set during the growing season",
-  "Wildlife and orchard ecology neighbouring Gir landscapes",
-];
+  const cells: GalleryCell[] = [];
+
+  if (v0) {
+    cells.push({
+      kind: "video",
+      src: v0,
+      poster: getImage(imgs, 0),
+      alt: "Cinematic pass across the Kesar orchard ridge",
+      className: "lg:col-span-2 lg:row-span-2 min-h-[300px] lg:min-h-0",
+    });
+  } else {
+    cells.push({
+      kind: "image",
+      src: getImage(imgs, 0),
+      alt: "Wide view of the Kesar mango orchard along the Gir ridge",
+      className: "lg:col-span-2 lg:row-span-2 aspect-[4/5] min-h-[260px] sm:aspect-[6/7] lg:aspect-auto",
+    });
+  }
+
+  cells.push({
+    kind: "image",
+    src: getImage(imgs, 1),
+    alt: "Sun-warmed canopy and understory on the farm",
+    className: "aspect-[5/4] min-h-[200px]",
+  });
+
+  if (v1 && v1 !== v0) {
+    cells.push({
+      kind: "video",
+      src: v1,
+      poster: getImage(imgs, 2),
+      alt: "Harvest rhythm along the grove floor",
+      className: "aspect-[5/4] min-h-[200px]",
+    });
+  } else {
+    cells.push({
+      kind: "image",
+      src: getImage(imgs, 2),
+      alt: "Ripe Kesar mangoes hanging from leased orchard trees",
+      className: "aspect-[5/4] min-h-[200px]",
+    });
+  }
+
+  cells.push({
+    kind: "image",
+    src: getImage(imgs, 3),
+    alt: "Close detail of fruit set during the growing season",
+    className: "aspect-[5/4] min-h-[200px]",
+  });
+
+  cells.push({
+    kind: "image",
+    src: getImage(imgs, 4),
+    alt: "Wildlife and orchard ecology neighbouring Gir landscapes",
+    className: "aspect-[5/4] min-h-[200px]",
+  });
+
+  return cells;
+}
 
 export function FarmGallery() {
-  const pool = (FARM_MEDIA.gallery.length > 0 ? FARM_MEDIA.gallery : Array(5).fill(FARM_MEDIA_FALLBACKS.gallery)) as string[];
-  const tiles = TILE_SIZES.map((tile, index) => ({
-    ...tile,
-    src: pool[index % pool.length],
-  }));
   const hasLibrary = !FARM_MEDIA.isEmpty && FARM_MEDIA.counts.images > 0;
+  const cells = buildCells();
 
   return (
-    <section className="relative section-luxe surface-cream">
+    <section className="texture-linen relative section-luxe surface-cream">
       <ScrollReveal className="container-luxe text-center">
-        <p className="eyebrow">From the limestone ridge</p>
-        <h2 className="font-[family-name:var(--font-heading)] mt-4 text-balance text-4xl tracking-tight sm:text-5xl text-[color:var(--brand-forest)]">
+        <p className="eyebrow text-[color:var(--brand-forest)]">From the limestone ridge</p>
+        <h2 className="font-[family-name:var(--font-heading)] mt-4 text-balance text-4xl tracking-tight text-[color:var(--brand-forest)] sm:text-5xl">
           A grove that earns its silence
         </h2>
         <p className="text-[color:var(--muted-foreground)] mx-auto mt-6 max-w-2xl text-pretty text-base leading-relaxed sm:text-lg">
           {hasLibrary
-            ? "Fresh frames from our Gir orchard — the same groves your tree shares with lion country."
-            : "Field photography refreshes every season. When source media is missing, we render an honest placeholder so layouts never collapse."}
+            ? "Living frames from Gir — stills and loops from the same canopy your contract references."
+            : "Field photography refreshes every season. When library assets are missing, we render honest placeholders so layouts never collapse."}
         </p>
       </ScrollReveal>
 
-      <StaggerGroup className="container-luxe mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-4 lg:auto-rows-[minmax(180px,1fr)]">
-        {tiles.map((tile, index) => (
-          <StaggerItem
-            key={`${tile.src}-${index}`}
-            className={cn("group relative overflow-hidden rounded-[var(--radius-xl)]", tile.className)}
-          >
-            <Image
-              src={tile.src}
-              alt={TILE_ALTS[index % TILE_ALTS.length]}
-              fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-              className="object-cover will-change-transform transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105"
-              quality={82}
-            />
-            <span
-              aria-hidden
-              className="absolute inset-0 bg-gradient-to-tr from-[color:var(--brand-forest)]/55 via-transparent to-transparent opacity-90 transition-opacity duration-500 group-hover:opacity-40"
-            />
-          </StaggerItem>
-        ))}
-      </StaggerGroup>
+      <FarmGalleryMosaic cells={cells} />
     </section>
   );
 }

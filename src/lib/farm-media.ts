@@ -13,11 +13,11 @@ const SKIP_EXT = new Set([".md", ".py", ".txt", ".gitkeep"]);
 const FALLBACK_HERO_IMAGE = "/media/farm/_placeholder-hero.svg";
 const FALLBACK_GALLERY_IMAGE = "/media/farm/_placeholder-gallery.svg";
 
+export type VideoSlotKey = "hero" | "trees" | "harvest" | "farm";
+
 type FileEntry = {
   abs: string;
-  /** path within `public/media` */
   rel: string;
-  /** browser URL with encoded path segments (spaces, parentheses, etc.) */
   url: string;
   ext: string;
   subfolder: string;
@@ -84,6 +84,35 @@ function dedupe(urls: string[]): string[] {
   return Array.from(new Set(urls));
 }
 
+function urlsMatching(entries: FileEntry[], keywords: string[]): string[] {
+  return dedupe(
+    entries
+      .filter((entry) => {
+        const hay = `${entry.subfolder} ${entry.rel} ${entry.base}`;
+        return keywords.some((k) => hay.includes(k.toLowerCase()));
+      })
+      .map((e) => e.url)
+  ).sort((a, b) => a.localeCompare(b));
+}
+
+function filterUrlsOrAll(allUrls: string[], keywords: string[]): string[] {
+  const hit = allUrls.filter((url) => {
+    try {
+      const decoded = decodeURIComponent(url).toLowerCase();
+      return keywords.some((k) => decoded.includes(k.toLowerCase()));
+    } catch {
+      return false;
+    }
+  });
+  return hit.length > 0 ? hit : [...allUrls];
+}
+
+function pickVideo(playable: string[], keywords: string[], fallbackIndex: number): string | null {
+  const filtered = filterUrlsOrAll(playable, keywords);
+  const chosen = filtered[0] ?? playable[fallbackIndex % playable.length] ?? playable[0];
+  return chosen ?? null;
+}
+
 function heroVideoScore(entry: FileEntry): number {
   const hay = `${entry.subfolder} ${entry.rel} ${entry.base}`;
   if (/drone|aerial/i.test(hay)) return 0;
@@ -101,6 +130,11 @@ function heroImageScore(entry: FileEntry): number {
   return 3;
 }
 
+export function getImage(arr: string[], index = 0): string {
+  if (arr.length === 0) return FALLBACK_GALLERY_IMAGE;
+  return arr[index % arr.length];
+}
+
 function buildFarmMedia() {
   const rawPaths = listFilesRecursive(MEDIA_ROOT)
     .filter((abs) => !SKIP_EXT.has(path.extname(abs).toLowerCase()))
@@ -112,10 +146,15 @@ function buildFarmMedia() {
   const videos = entries.filter(isVideo).sort((a, b) => a.rel.localeCompare(b.rel));
 
   const playable = videos.filter((entry) => entry.ext === ".mp4" || entry.ext === ".mov");
-  const heroVideo = [...playable].sort((a, b) => heroVideoScore(a) - heroVideoScore(b) || a.rel.localeCompare(b.rel))[0];
+  const playableUrls = playable.map((e) => e.url);
 
-  const heroImage =
-    [...images].sort((a, b) => heroImageScore(a) - heroImageScore(b) || a.rel.localeCompare(b.rel))[0];
+  const heroVideoEntry = [...playable].sort(
+    (a, b) => heroVideoScore(a) - heroVideoScore(b) || a.rel.localeCompare(b.rel)
+  )[0];
+
+  const heroImageEntry = [...images].sort(
+    (a, b) => heroImageScore(a) - heroImageScore(b) || a.rel.localeCompare(b.rel)
+  )[0];
 
   const orchard = images.filter((entry) =>
     matches(entry, ["orchard", "canopy", "tree", "grove", "field", "rows", "aerial", "drone", "landscape", "forest", "gir"])
@@ -151,11 +190,43 @@ function buildFarmMedia() {
     return out;
   };
 
+  const farmImages = urlsMatching(images, ["farm", "field", "land", "aerial", "drone", "landscape", "forest", "gir", "pond", "animal"]);
+  const harvestImages = urlsMatching(images, ["harvest", "fruit", "mango", "pick", "ripe", "kesar", "slice", "juicy", "pulp"]);
+  const heroImages = urlsMatching(images, ["hero", "cover", "forest", "aerial", "cinematic", "drone", "kesar", "mango", "wildlife", "landscape"]);
+  const treeImagesPool =
+    urlsMatching(images, ["tree", "mango", "grove", "kesar", "orchard", "canopy", "forest"]).length > 0
+      ? urlsMatching(images, ["tree", "mango", "grove", "kesar", "orchard", "canopy", "forest"])
+      : gallery.length > 0
+        ? gallery
+        : [FALLBACK_GALLERY_IMAGE];
+
+  const videosBlock = {
+    hero: heroVideoEntry?.url ?? pickVideo(playableUrls, ["hero", "main", "intro", "forest"], 0),
+    trees: pickVideo(playableUrls, ["tree", "mango", "grove", "growth", "kesar", "hanging", "orchard"], 1),
+    harvest: pickVideo(playableUrls, ["harvest", "slice", "juicy", "pulp", "fruit", "pick"], 2),
+    farm: pickVideo(playableUrls, ["farm", "field", "drone", "aerial", "landscape", "forest", "animals", "pond", "gir", "sunrise"], 3),
+    all: playableUrls,
+  } as const;
+
+  const imagesBlock = {
+    hero: heroImages.length > 0 ? heroImages : fallback(gallery.slice(0, 3), 3),
+    trees: {
+      small: treeImagesPool,
+      medium: treeImagesPool,
+      large: treeImagesPool,
+      all: treeImagesPool,
+    },
+    farm: farmImages.length > 0 ? farmImages : fallback(gallery, 4),
+    harvest: harvestImages.length > 0 ? harvestImages : fallback(gallery, 4),
+    team: fallback(team.map((e) => e.url), 3),
+    all: gallery.length > 0 ? gallery : [FALLBACK_GALLERY_IMAGE],
+  } as const;
+
   return {
     hero: {
-      video: heroVideo?.url,
-      poster: heroImage?.url ?? FALLBACK_HERO_IMAGE,
-      fallbackImage: heroImage?.url ?? FALLBACK_HERO_IMAGE,
+      video: heroVideoEntry?.url ?? videosBlock.hero,
+      poster: heroImageEntry?.url ?? FALLBACK_HERO_IMAGE,
+      fallbackImage: heroImageEntry?.url ?? FALLBACK_HERO_IMAGE,
     },
     gallery,
     orchard: fallback(
@@ -178,7 +249,8 @@ function buildFarmMedia() {
       sunrise.map((e) => e.url),
       3
     ),
-    videos: videos.map((entry) => entry.url),
+    videos: videosBlock,
+    images: imagesBlock,
     counts: {
       total: entries.length,
       images: images.length,
@@ -191,6 +263,10 @@ function buildFarmMedia() {
 export type FarmMedia = ReturnType<typeof buildFarmMedia>;
 
 export const FARM_MEDIA: FarmMedia = buildFarmMedia();
+
+export function getVideo(key: VideoSlotKey): string | null {
+  return FARM_MEDIA.videos[key];
+}
 
 export const FARM_MEDIA_FALLBACKS = {
   hero: FALLBACK_HERO_IMAGE,
