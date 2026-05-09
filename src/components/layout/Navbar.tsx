@@ -15,6 +15,8 @@ const links = [
   { href: "/how-it-works", label: "How It Works" },
   { href: "/trust", label: "Trust" },
   { href: "/faq", label: "FAQ" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
 ];
 
 export function Navbar() {
