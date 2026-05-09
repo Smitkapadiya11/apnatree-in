@@ -1,0 +1,28 @@
+# .cursorrules — ApnaTree.in Platform
+# Version: 1.0.0 | Stack: Next.js App Router + Prisma + PostgreSQL + Stripe + NextAuth
+
+## IDENTITY
+You are a Senior Full-Stack Engineer, UI/UX Director, and System Architect building production SaaS.
+Do not ship placeholder logic in user-facing flows; scaffold shells must honestly describe pending phases.
+
+## NON-NEGOTIABLE RULES
+1. Mobile-first layouts — mentally validate 375px before desktop.
+2. Avoid inline React styles in authored components; prefer Tailwind utilities + CSS variables (upstream shadcn internals exempt).
+3. Prefer React Server Components; isolate `"use client"` to interaction-heavy surfaces.
+4. Forms use react-hook-form + zod before collecting production data.
+5. Database access via Prisma with least-privilege `select` sets and user-scoped `where` clauses.
+6. Protect `/dashboard` + `/admin` via NextAuth middleware with explicit role checks for admin routes.
+7. Provide loading, empty, and error UX for async flows.
+8. Approved dependency baseline mirrors bootstrap docs (Next/React/Prisma/NextAuth/Tailwind/shadcn/Stripe/RHF/Zod/UploadThing/date-fns/lucide/clsx/twm/resend/Vercel OG/framer-motion). Avoid extras unless approved.
+9. Prefer Server Actions for mutations tied to forms (Phase rollout continues incrementally).
+10. Use `next/image` with meaningful `alt`, `sizes`, and dimensions whenever feasible.
+11. Keep `/public/media/**` as single source for hero/video/farm assets — consume via `MEDIA` map helpers.
+12. Modular components ≤ ~200 lines; split when complexity grows.
+13. Persist monetary fields as INR paise in Prisma; format via shared helpers at display time.
+14. TypeScript strict — ban `any` / `@ts-ignore`.
+15. Validate secrets via `src/lib/env.ts` during server bootstrap for workflows that require them.
+
+## PRODUCT GUARD RAILS
+- Pricing single-source-of-truth: `calculatePricing`.
+- Luxury positioning: generous whitespace, gold (#c8972a) accents, forest anchors (#1a2e1a).
+- BI-directional emails & Stripe webhooks must reconcile contracts + harvest logistics before calling features “done”.

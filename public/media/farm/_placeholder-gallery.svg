@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Farm gallery placeholder">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fdf6e9"/>
+      <stop offset="100%" stop-color="#f5e6c8"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <g stroke="#c8972a" stroke-width="2" fill="none" opacity="0.55">
+    <circle cx="400" cy="300" r="160"/>
+    <circle cx="400" cy="300" r="110"/>
+    <circle cx="400" cy="300" r="60"/>
+  </g>
+  <g fill="#1a2e1a" opacity="0.85">
+    <path d="M400 220 C 360 240, 360 280, 400 300 C 440 280, 440 240, 400 220 Z"/>
+    <rect x="396" y="298" width="8" height="42" fill="#8b6347"/>
+  </g>
+  <g font-family="Georgia, serif" fill="#1a2e1a">
+    <text x="400" y="478" font-size="22" text-anchor="middle" letter-spacing="10">APNATREE</text>
+    <text x="400" y="506" font-size="12" text-anchor="middle" letter-spacing="4" opacity="0.6">Awaiting orchard photography</text>
+  </g>
+</svg>

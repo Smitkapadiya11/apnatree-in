@@ -1,0 +1,1 @@
+﻿FARM source folder E:\projects\farm not present on disk; copy step skipped. public/media/farm exists but currently empty (only .gitkeep). farm-media.ts handles empty state via SVG placeholders + categorical fallbacks.

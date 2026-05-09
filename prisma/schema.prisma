@@ -1,0 +1,301 @@
+// prisma/schema.prisma — ApnaTree.in data model
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CUSTOMER
+  ADMIN
+  FIELD_AGENT
+}
+
+enum TreeTier {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
+enum ContractDuration {
+  ONE_YEAR
+  TWO_YEAR
+  FIVE_YEAR
+}
+
+enum ContractStatus {
+  PREBOOKING_PENDING
+  PREBOOKING_PAID
+  AWAITING_CONFIRMATION
+  ACTIVE
+  HARVESTING
+  COMPLETED
+  CANCELLED
+}
+
+enum MediaType {
+  PHOTO
+  VIDEO
+}
+
+enum VisitStatus {
+  REQUESTED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum HarvestStatus {
+  PENDING
+  IN_PROGRESS
+  PACKAGED
+  SHIPPED
+  DELIVERED
+}
+
+enum ShippingPaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  phone         String?
+  address       String?
+  city          String?
+  state         String?
+  country       String    @default("IN")
+  pincode       String?
+  role          UserRole  @default(CUSTOMER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  contracts     Contract[]
+  farmVisits    FarmVisit[]
+  harvestOrders HarvestOrder[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Tree {
+  id              String   @id @default(cuid())
+  treeCode        String   @unique
+  tier            TreeTier
+  ageYears        Int
+  locationLat     Float?
+  locationLng     Float?
+  farmSector      String?
+  isAvailable     Boolean  @default(true)
+  totalYieldKgAvg Float?
+  profileImageUrl String?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  contracts    Contract[]
+  mediaUpdates MediaUpdate[]
+
+  @@map("trees")
+}
+
+model Contract {
+  id                        String           @id @default(cuid())
+  contractNumber            String           @unique @default(cuid())
+  userId                    String
+  treeId                    String?
+  tier                      TreeTier
+  duration                  ContractDuration
+  status                    ContractStatus   @default(PREBOOKING_PENDING)
+  startDate                 DateTime?
+  endDate                   DateTime?
+  prebookingAmountPaise     Int
+  yearlyRentPaise           Int
+  totalContractValuePaise   Int
+  prebookingStripeSessionId String?
+  prebookingPaidAt          DateTime?
+  prebookingStripePaymentId String?
+  currency                  String           @default("INR")
+  createdAt                 DateTime         @default(now())
+  updatedAt                 DateTime         @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id])
+  tree          Tree?          @relation(fields: [treeId], references: [id])
+  mediaUpdates  MediaUpdate[]
+  farmVisits    FarmVisit[]
+  harvestOrders HarvestOrder[]
+  rentPayments  RentPayment[]
+
+  @@map("contracts")
+}
+
+model RentPayment {
+  id              String    @id @default(cuid())
+  contractId      String
+  yearNumber      Int
+  amountPaise     Int
+  stripeSessionId String?
+  stripePaymentId String?
+  paidAt          DateTime?
+  dueDate         DateTime
+  createdAt       DateTime  @default(now())
+
+  contract Contract @relation(fields: [contractId], references: [id])
+
+  @@map("rent_payments")
+}
+
+model MediaUpdate {
+  id             String    @id @default(cuid())
+  contractId     String
+  treeId         String
+  uploadedBy     String
+  mediaType      MediaType
+  fileUrl        String
+  thumbnailUrl   String?
+  blurDataURL    String?
+  uploadThingKey String?
+  caption        String?
+  takenAt        DateTime
+  isViewed       Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+
+  contract Contract @relation(fields: [contractId], references: [id])
+  tree     Tree     @relation(fields: [treeId], references: [id])
+
+  @@map("media_updates")
+}
+
+model FarmVisit {
+  id               String      @id @default(cuid())
+  contractId       String
+  userId           String
+  visitDate        DateTime
+  numberOfVisitors Int         @default(1)
+  status           VisitStatus @default(REQUESTED)
+  notes            String?
+  confirmationCode String?     @unique
+  adminNotes       String?
+  usedFreeSlot     Boolean     @default(true)
+  visitYear        Int
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  contract Contract @relation(fields: [contractId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@map("farm_visits")
+}
+
+model HarvestOrder {
+  id                      String                @id @default(cuid())
+  contractId              String
+  userId                  String
+  season                  String
+  estimatedYieldKg        Float?
+  actualYieldKg           Float?
+  status                  HarvestStatus         @default(PENDING)
+  shippingAddressLine1    String?
+  shippingAddressLine2    String?
+  shippingCity            String?
+  shippingState           String?
+  shippingPincode         String?
+  shippingCountry         String                @default("IN")
+  shippingCostPaise       Int?
+  shippingPaymentStatus   ShippingPaymentStatus @default(PENDING)
+  shippingStripeSessionId String?
+  shippingPaidAt          DateTime?
+  trackingNumber          String?
+  courierPartner          String?
+  estimatedDelivery       DateTime?
+  deliveredAt             DateTime?
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
+
+  contract Contract @relation(fields: [contractId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@map("harvest_orders")
+}
+
+model Waitlist {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  phone     String?
+  tier      TreeTier?
+  position  Int      @default(autoincrement())
+  notified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("waitlist")
+}
+
+model SiteConfig {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+
+  @@map("site_config")
+}
+
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@map("contact_submissions")
+}

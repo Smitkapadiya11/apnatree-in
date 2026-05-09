@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Gir orchard placeholder">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fdf6e9"/>
+      <stop offset="55%" stop-color="#f0c060"/>
+      <stop offset="100%" stop-color="#8b6914"/>
+    </linearGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2d4a2d"/>
+      <stop offset="100%" stop-color="#1a2e1a"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="78%" cy="32%" r="14%">
+      <stop offset="0%" stop-color="#fdf6e9" stop-opacity="0.95"/>
+      <stop offset="60%" stop-color="#f0c060" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#f0c060" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <circle cx="1248" cy="288" r="240" fill="url(#sun)"/>
+  <path d="M0,640 C240,580 420,720 720,640 C980,570 1180,700 1600,610 L1600,900 L0,900 Z" fill="url(#ground)"/>
+  <g fill="#1a2e1a" opacity="0.85">
+    <circle cx="180" cy="640" r="86"/>
+    <circle cx="240" cy="610" r="64"/>
+    <circle cx="120" cy="610" r="58"/>
+    <rect x="170" y="640" width="20" height="80" fill="#2d4a2d"/>
+    <circle cx="540" cy="660" r="92"/>
+    <circle cx="600" cy="630" r="62"/>
+    <circle cx="480" cy="630" r="58"/>
+    <rect x="530" y="660" width="20" height="80" fill="#2d4a2d"/>
+    <circle cx="900" cy="650" r="78"/>
+    <rect x="892" y="650" width="16" height="70" fill="#2d4a2d"/>
+    <circle cx="1180" cy="660" r="88"/>
+    <circle cx="1240" cy="630" r="58"/>
+    <rect x="1172" y="660" width="16" height="76" fill="#2d4a2d"/>
+    <circle cx="1420" cy="640" r="72"/>
+    <rect x="1412" y="640" width="16" height="70" fill="#2d4a2d"/>
+  </g>
+  <g font-family="Georgia, serif" fill="#fdf6e9" opacity="0.85">
+    <text x="800" y="466" font-size="44" text-anchor="middle" letter-spacing="14">GIR · KESAR · GROVE</text>
+    <text x="800" y="510" font-size="18" text-anchor="middle" letter-spacing="6" opacity="0.7">Awaiting field photography</text>
+  </g>
+</svg>
