@@ -1,9 +1,9 @@
 import type { MetadataRoute } from "next";
 
-import { env } from "@/lib/env";
+import { getSiteBaseUrl } from "@/lib/site-url";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
+  const base = getSiteBaseUrl();
 
   const paths: { path: string; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number }[] = [
     { path: "", changeFrequency: "weekly", priority: 1 },

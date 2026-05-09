@@ -7,7 +7,7 @@ import { sendPreBookingConfirmationEmail, sendRentPaidEmail, sendShippingPaidEma
 import { env } from "@/lib/env";
 import { getTierLabel } from "@/lib/pricing";
 import { prisma } from "@/lib/prisma";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 
 export const runtime = "nodejs";
 
@@ -204,7 +204,7 @@ export async function POST(req: Request) {
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(rawBody, signature, env.STRIPE_WEBHOOK_SECRET);
+    event = getStripe().webhooks.constructEvent(rawBody, signature, env.STRIPE_WEBHOOK_SECRET);
   } catch (error) {
     console.error(error);
     return new Response("Invalid signature", { status: 400 });

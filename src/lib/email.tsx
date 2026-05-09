@@ -15,7 +15,16 @@ import RentPaidEmail from "@/emails/rent-paid";
 import ShippingPaidEmail from "@/emails/shipping-paid";
 import { env } from "@/lib/env";
 
-const resend = new Resend(env.RESEND_API_KEY);
+let resendSingleton: Resend | undefined;
+
+function getResend(): Resend {
+  const key = env.RESEND_API_KEY;
+  if (!key) {
+    throw new Error("RESEND_API_KEY is not configured.");
+  }
+  resendSingleton ??= new Resend(key);
+  return resendSingleton;
+}
 
 export async function sendEmail(message: {
   to: string;
@@ -24,7 +33,7 @@ export async function sendEmail(message: {
 }): Promise<{ success: boolean }> {
   try {
     const html = await render(message.react);
-    await resend.emails.send({
+    await getResend().emails.send({
       from: env.FROM_EMAIL,
       to: message.to,
       subject: message.subject,

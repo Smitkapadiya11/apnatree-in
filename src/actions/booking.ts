@@ -27,7 +27,7 @@ import {
   type CurrencyCode,
   stripePaymentMethodTypes,
 } from "@/lib/stripe-helpers";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 
 const bookingSchema = z.object({
   tier: z.nativeEnum(TreeTier),
@@ -112,7 +112,7 @@ export async function createPreBookingSession(formData: FormData): Promise<Actio
   });
 
   try {
-    const checkout = await stripe.checkout.sessions.create({
+    const checkout = await getStripe().checkout.sessions.create({
       mode: "payment",
       payment_method_types: stripePaymentMethodTypes(currency),
       line_items: [
@@ -306,7 +306,7 @@ export async function createAnnualRentSession(contractId: string): Promise<Actio
   const currency = (contract.currency as CurrencyCode) ?? "INR";
   const unitAmount = formatAmountForStripe(contract.yearlyRentPaise, currency);
 
-  const checkout = await stripe.checkout.sessions.create({
+  const checkout = await getStripe().checkout.sessions.create({
     mode: "payment",
     payment_method_types: stripePaymentMethodTypes(currency),
     line_items: [

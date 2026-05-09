@@ -10,7 +10,7 @@ import type { ActionResult } from "@/types/actions";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
 import { getAuthSession } from "@/lib/session";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 import { formatAmountForStripe, stripePaymentMethodTypes, type CurrencyCode } from "@/lib/stripe-helpers";
 
 const addressSchema = z.object({
@@ -129,7 +129,7 @@ export async function createShippingPaymentSession(
     const currency: CurrencyCode = "INR";
     const unitAmount = formatAmountForStripe(order.shippingCostPaise, currency);
 
-    const checkout = await stripe.checkout.sessions.create({
+    const checkout = await getStripe().checkout.sessions.create({
       mode: "payment",
       payment_method_types: stripePaymentMethodTypes(currency),
       line_items: [

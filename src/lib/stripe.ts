@@ -4,9 +4,17 @@ import Stripe from "stripe";
 
 import { env } from "@/lib/env";
 
+let stripeSingleton: Stripe | undefined;
+
 /**
- * Server-only Stripe SDK. Never import this module from Client Components or shared client bundles.
+ * Lazily constructs the Stripe SDK so `next build` can finish when secrets are not injected yet
+ * (for example `SKIP_ENV_VALIDATION=1` on Vercel before env vars are configured).
  */
-export const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-  typescript: true,
-});
+export function getStripe(): Stripe {
+  const secret = env.STRIPE_SECRET_KEY;
+  if (!secret?.startsWith("sk_")) {
+    throw new Error("STRIPE_SECRET_KEY is missing or invalid.");
+  }
+  stripeSingleton ??= new Stripe(secret, { typescript: true });
+  return stripeSingleton;
+}

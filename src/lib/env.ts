@@ -26,7 +26,7 @@ function loadEnv(): z.infer<typeof envSchema> {
   };
 
   if (skipValidation) {
-    return merged as z.infer<typeof envSchema>;
+    return merged as unknown as z.infer<typeof envSchema>;
   }
 
   return envSchema.parse(merged);
