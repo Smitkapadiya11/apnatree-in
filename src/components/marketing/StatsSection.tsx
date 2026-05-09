@@ -1,8 +1,11 @@
+import Image from "next/image";
+
 import { getCachedSiteConfigValue } from "@/lib/cache/queries";
 
 import { AnimatedCounter } from "@/components/marketing/AnimatedCounter";
 import { ScrollReveal } from "@/components/shared/ScrollReveal";
 import { StaggerGroup, StaggerItem } from "@/components/shared/StaggerGroup";
+import { FARM_MEDIA } from "@/lib/farm-media";
 
 async function resolveStat(key: string, fallback: number) {
   const raw = await getCachedSiteConfigValue(key);
@@ -24,11 +27,25 @@ export async function StatsSection() {
     resolveStat("marketing_stat_kg_delivered", 4200),
   ]);
 
+  const textureSrc =
+    FARM_MEDIA.sunrise[0] ?? FARM_MEDIA.orchard[0] ?? FARM_MEDIA.gallery[0];
+
   return (
     <section
       className="relative section-luxe overflow-hidden text-[color:var(--brand-cream)]"
       style={{ background: "var(--gradient-hero)" }}
     >
+      {textureSrc && !FARM_MEDIA.isEmpty ? (
+        <Image
+          src={textureSrc}
+          alt=""
+          fill
+          aria-hidden
+          sizes="100vw"
+          quality={55}
+          className="pointer-events-none object-cover opacity-[0.18] mix-blend-soft-light"
+        />
+      ) : null}
       <span
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-30"

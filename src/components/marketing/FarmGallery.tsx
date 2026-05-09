@@ -13,12 +13,21 @@ const TILE_SIZES = [
   { className: "aspect-[5/4]" },
 ];
 
+const TILE_ALTS = [
+  "Wide view of the Kesar mango orchard along the Gir ridge",
+  "Sun-warmed canopy and understory on the farm",
+  "Ripe Kesar mangoes hanging from leased orchard trees",
+  "Close detail of fruit set during the growing season",
+  "Wildlife and orchard ecology neighbouring Gir landscapes",
+];
+
 export function FarmGallery() {
   const pool = (FARM_MEDIA.gallery.length > 0 ? FARM_MEDIA.gallery : Array(5).fill(FARM_MEDIA_FALLBACKS.gallery)) as string[];
   const tiles = TILE_SIZES.map((tile, index) => ({
     ...tile,
     src: pool[index % pool.length],
   }));
+  const hasLibrary = !FARM_MEDIA.isEmpty && FARM_MEDIA.counts.images > 0;
 
   return (
     <section className="relative section-luxe surface-cream">
@@ -28,7 +37,9 @@ export function FarmGallery() {
           A grove that earns its silence
         </h2>
         <p className="text-[color:var(--muted-foreground)] mx-auto mt-6 max-w-2xl text-pretty text-base leading-relaxed sm:text-lg">
-          Field photography refreshed every season. When source media is missing, we render an honest placeholder so layouts never collapse.
+          {hasLibrary
+            ? "Fresh frames from our Gir orchard — the same groves your tree shares with lion country."
+            : "Field photography refreshes every season. When source media is missing, we render an honest placeholder so layouts never collapse."}
         </p>
       </ScrollReveal>
 
@@ -40,10 +51,10 @@ export function FarmGallery() {
           >
             <Image
               src={tile.src}
-              alt="Kesar orchard documentary frame"
+              alt={TILE_ALTS[index % TILE_ALTS.length]}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-              className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105"
+              className="object-cover will-change-transform transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105"
               quality={82}
             />
             <span

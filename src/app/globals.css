@@ -318,4 +318,22 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /**
+   * Hero backdrop drift — transform-only for compositor-friendly motion.
+   * Global `prefers-reduced-motion` rules shorten animation duration for users who need it.
+   */
+  @keyframes hero-drift {
+    0%,
+    100% {
+      transform: translate3d(-3%, -2%, 0) scale(1.06);
+    }
+    50% {
+      transform: translate3d(2%, 1%, 0) scale(1.09);
+    }
+  }
+
+  .animate-hero-drift {
+    animation: hero-drift 36s var(--ease-luxe, cubic-bezier(0.22, 1, 0.36, 1)) infinite alternate;
+  }
 }

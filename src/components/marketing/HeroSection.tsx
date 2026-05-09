@@ -1,6 +1,5 @@
-import Image from "next/image";
-
 import { HeroBackdrop } from "@/components/marketing/HeroBackdrop";
+import { HeroBackgroundMedia } from "@/components/marketing/HeroBackgroundMedia";
 import { HeroContent } from "@/components/marketing/HeroContent";
 import { FARM_MEDIA, FARM_MEDIA_FALLBACKS } from "@/lib/farm-media";
 
@@ -14,41 +13,11 @@ export function HeroSection() {
       className="relative isolate min-h-[100svh] overflow-hidden bg-[color:var(--brand-forest)] text-white"
     >
       <div className="absolute inset-0">
-        <div className="absolute inset-0 md:hidden">
-          <Image
-            src={fallbackImage}
-            alt="Golden hour across the Gir orchard canopy"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
-        </div>
-        <div className="absolute inset-0 hidden md:block">
-          {videoSrc ? (
-            <video
-              className="size-full object-cover"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              aria-hidden="true"
-              poster={fallbackImage}
-            >
-              <source src={videoSrc} type={videoSrc.endsWith(".mov") ? "video/quicktime" : "video/mp4"} />
-            </video>
-          ) : (
-            <Image
-              src={fallbackImage}
-              alt="Golden hour across the Gir orchard canopy"
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover"
-            />
-          )}
-        </div>
+        <HeroBackgroundMedia
+          videoSrc={videoSrc}
+          posterSrc={fallbackImage}
+          posterAlt="Kesar mango orchard on the Gir limestone ridge — field photography from ApnaTree"
+        />
         <HeroBackdrop />
       </div>
 
