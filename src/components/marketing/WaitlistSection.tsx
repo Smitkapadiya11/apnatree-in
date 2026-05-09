@@ -2,15 +2,12 @@
 
 import * as React from "react";
 
+import { submitWaitlist } from "@/actions/waitlist";
 import { PremiumButton } from "@/components/ui/PremiumButton";
 import { ScrollReveal } from "@/components/shared/ScrollReveal";
 import { cn } from "@/lib/utils";
 
-// TODO(actions): wire to a server action under src/actions/ when a waitlist
-// flow is approved. This component intentionally stays client-only and does
-// not invent a new API route.
-
-type Status = "idle" | "submitting" | "success" | "error";
+type Status = "idle" | "success" | "error";
 
 export function WaitlistSection() {
   const [email, setEmail] = React.useState("");
@@ -18,24 +15,30 @@ export function WaitlistSection() {
   const [tier, setTier] = React.useState("MEDIUM");
   const [status, setStatus] = React.useState<Status>("idle");
   const [message, setMessage] = React.useState<string>("");
+  const [pending, startTransition] = React.useTransition();
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-      setStatus("error");
-      setMessage("Please enter a valid email address.");
-      return;
-    }
-    setStatus("submitting");
     setMessage("");
-    window.setTimeout(() => {
-      setStatus("success");
-      setMessage(
-        "You're on the canopy memo. A concierge agent will reach out before the next batch opens."
-      );
-      setEmail("");
-      setName("");
-    }, 700);
+    setStatus("idle");
+    startTransition(async () => {
+      const result = await submitWaitlist({
+        email,
+        name: name.trim() || undefined,
+        tier,
+      });
+      if (result.success) {
+        setStatus("success");
+        setMessage(
+          "You're on the canopy memo. A concierge agent will reach out before the next batch opens."
+        );
+        setEmail("");
+        setName("");
+        return;
+      }
+      setStatus("error");
+      setMessage(result.error);
+    });
   };
 
   return (
@@ -122,7 +125,7 @@ export function WaitlistSection() {
             type="submit"
             tone="gold"
             size="lg"
-            loading={status === "submitting"}
+            loading={pending}
             className="w-full"
           >
             {status === "success" ? "On the memo" : "Join the canopy memo"}
