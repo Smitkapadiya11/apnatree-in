@@ -23,14 +23,16 @@ export function AnimatedCounter({
     const node = ref.current;
     if (!node) return;
     if (typeof window === "undefined" || !("IntersectionObserver" in window)) {
-      setActive(true);
+      queueMicrotask(() => setActive(true));
       return;
     }
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) {
-      setActive(true);
-      setDisplay(value);
+      queueMicrotask(() => {
+        setActive(true);
+        setDisplay(value);
+      });
       return;
     }
 

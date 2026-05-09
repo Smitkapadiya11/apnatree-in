@@ -31,7 +31,9 @@ export function DashboardSidebar() {
   const reduceMotion = useReducedMotion();
   const [open, setOpen] = React.useState(false);
 
-  React.useEffect(() => setOpen(false), [pathname]);
+  React.useEffect(() => {
+    queueMicrotask(() => setOpen(false));
+  }, [pathname]);
 
   React.useEffect(() => {
     if (!open) return;

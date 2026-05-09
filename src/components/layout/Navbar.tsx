@@ -32,7 +32,7 @@ export function Navbar() {
   }, [scrollY]);
 
   React.useEffect(() => {
-    setOpen(false);
+    queueMicrotask(() => setOpen(false));
   }, [pathname]);
 
   React.useEffect(() => {
