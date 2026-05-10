@@ -13,6 +13,13 @@ const emptyTierMap = (): TierAvailabilityMap => ({
   LARGE: 0,
 });
 
+/** When Postgres is unreachable, keep marketing/checkout from showing bare zeros. */
+export const MARKETING_FALLBACK_TIER_AVAILABILITY: TierAvailabilityMap = {
+  SMALL: 12,
+  MEDIUM: 8,
+  LARGE: 4,
+};
+
 /** Connection failures when Postgres is unreachable (common in local dev). */
 const DB_UNAVAILABLE_KNOWN_CODES = new Set([
   "P1001", // Can't reach database server
@@ -80,7 +87,7 @@ export const getCachedTreeAvailability = unstable_cache(
     } catch (error) {
       if (isDbUnavailableError(error)) {
         warnDbDownOnce();
-        return emptyTierMap();
+        return MARKETING_FALLBACK_TIER_AVAILABILITY;
       }
       console.error("[getCachedTreeAvailability]", error);
       return emptyTierMap();
@@ -91,8 +98,13 @@ export const getCachedTreeAvailability = unstable_cache(
 );
 
 export async function getAvailableCountForTier(tier: TreeTier): Promise<number> {
-  const map = await getCachedTreeAvailability();
-  return map[tier];
+  try {
+    const map = await getCachedTreeAvailability();
+    return map[tier];
+  } catch (error) {
+    console.error("[getAvailableCountForTier]", tier, error);
+    return MARKETING_FALLBACK_TIER_AVAILABILITY[tier];
+  }
 }
 
 export function getCachedSiteConfigValue(key: string): Promise<string | null> {

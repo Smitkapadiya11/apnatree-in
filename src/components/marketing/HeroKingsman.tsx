@@ -4,10 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
 
-import { gsap } from "gsap";
-
 import { useLenis } from "@/contexts/LenisContext";
-import { KINGSMAN_MEDIA } from "@/lib/kingsman-media";
+import { MEDIA } from "@/lib/farm-media-client";
 
 function prefersReducedMotion() {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -30,22 +28,27 @@ export function HeroKingsman() {
     const imgWrap = imgScaleRef.current;
     if (!imgWrap) return;
 
-    if (!reduced) {
-      gsap.set(imgWrap, { scale: 1.08 });
-      gsap.to(imgWrap, {
-        scale: 1,
-        duration: 2.5,
-        ease: "power2.out",
-      });
-    }
-
     let splitCleanup: (() => void) | undefined;
+    let cancelled = false;
 
-    const runChars = async () => {
+    void (async () => {
+      const { gsap } = await import("gsap");
+      if (cancelled) return;
+
+      if (!reduced) {
+        gsap.set(imgWrap, { scale: 1.08 });
+        gsap.to(imgWrap, {
+          scale: 1,
+          duration: 2.5,
+          ease: "power2.out",
+        });
+      }
+
       const line1 = line1Ref.current;
       if (!line1 || reduced) return;
 
       const [{ default: Splitting }] = await Promise.all([import("splitting"), import("splitting/dist/splitting.css")]);
+      if (cancelled) return;
 
       Splitting({ target: line1, by: "chars" });
       const chars = line1.querySelectorAll(".char");
@@ -77,15 +80,14 @@ export function HeroKingsman() {
       if (ctaRef.current) {
         tl.from(ctaRef.current, { opacity: 0, y: 16, duration: 0.8, ease: "power2.out" }, "-=0.6");
       }
-    };
 
-    void runChars().then(() => {
       splitCleanup = () => {
         line1Ref.current?.querySelectorAll(".char").forEach((n) => n.removeAttribute("style"));
       };
-    });
+    })();
 
     return () => {
+      cancelled = true;
       splitCleanup?.();
     };
   }, []);
@@ -99,25 +101,36 @@ export function HeroKingsman() {
       return;
     }
 
+    let disposed = false;
+    let gsapMod: typeof import("gsap").gsap | null = null;
+
     const tick = () => {
+      if (!scrollRef.current || !gsapMod || disposed) return;
       const y = lenis ? lenis.scroll : window.scrollY;
-      gsap.to(el, { opacity: y > 150 ? 0 : 1, duration: 0.35, overwrite: "auto" });
+      gsapMod.to(scrollRef.current, { opacity: y > 150 ? 0 : 1, duration: 0.35, overwrite: "auto" });
     };
+
+    void (async () => {
+      const { gsap } = await import("gsap");
+      if (disposed) return;
+      gsapMod = gsap;
+      tick();
+    })();
 
     if (lenis) {
       lenis.on("scroll", tick);
     } else {
       window.addEventListener("scroll", tick, { passive: true });
     }
-    tick();
 
     return () => {
+      disposed = true;
       if (lenis) lenis.off("scroll", tick);
       else window.removeEventListener("scroll", tick);
     };
   }, [lenis]);
 
-  const [heroImg, setHeroImg] = React.useState(KINGSMAN_MEDIA.aerialHero);
+  const [heroImg, setHeroImg] = React.useState(MEDIA.images.hero[0] ?? "/media/20260503_093551.jpg");
 
   return (
     <section
@@ -134,7 +147,7 @@ export function HeroKingsman() {
           quality={90}
           sizes="100vw"
           className="object-cover max-md:object-[60%_35%] md:object-[center_35%]"
-          onError={() => setHeroImg(KINGSMAN_MEDIA.grove551)}
+          onError={() => setHeroImg(MEDIA.images.hero[1] ?? "/media/20260503_093551.jpg")}
         />
       </div>
 

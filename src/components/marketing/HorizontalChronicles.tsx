@@ -3,12 +3,9 @@
 import Image from "next/image";
 import * as React from "react";
 
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
 import { CHRONICLE_PANELS } from "@/lib/kingsman-media";
 
-gsap.registerPlugin(ScrollTrigger);
+type LayoutMode = "pending" | "mobile" | "desktop";
 
 export function HorizontalChronicles() {
   const outerRef = React.useRef<HTMLElement>(null);
@@ -16,18 +13,19 @@ export function HorizontalChronicles() {
   const rowRef = React.useRef<HTMLDivElement>(null);
   const progressRef = React.useRef<HTMLDivElement>(null);
   const labelRef = React.useRef<HTMLSpanElement>(null);
-  const [mobile, setMobile] = React.useState(false);
+  const scrollCtxRef = React.useRef<{ revert: () => void } | null>(null);
+  const [layout, setLayout] = React.useState<LayoutMode>("pending");
 
   React.useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");
-    const apply = () => setMobile(mq.matches);
-    apply();
+    const apply = () => setLayout(mq.matches ? "mobile" : "desktop");
+    queueMicrotask(apply);
     mq.addEventListener("change", apply);
     return () => mq.removeEventListener("change", apply);
   }, []);
 
   React.useEffect(() => {
-    if (mobile) return;
+    if (layout !== "desktop") return;
     const outer = outerRef.current;
     const sticky = stickyRef.current;
     const row = rowRef.current;
@@ -36,40 +34,64 @@ export function HorizontalChronicles() {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduced) return;
 
-    const ctx = gsap.context(() => {
-      gsap.to(row, {
-        x: () => -(row.scrollWidth - window.innerWidth),
-        ease: "none",
-        scrollTrigger: {
-          trigger: outer,
-          start: "top top",
-          end: "bottom bottom",
-          scrub: 1.5,
-          pin: sticky,
-          invalidateOnRefresh: true,
-          anticipatePin: 1,
-          onUpdate: (self) => {
-            const p = self.progress;
-            if (progressRef.current) {
-              progressRef.current.style.width = `${p * 100}%`;
-            }
-            const idx = Math.min(
-              CHRONICLE_PANELS.length - 1,
-              Math.floor(p * CHRONICLE_PANELS.length)
-            );
-            if (labelRef.current) {
-              const k = CHRONICLE_PANELS[idx]?.k ?? "01";
-              labelRef.current.textContent = `${k} / 05`;
-            }
+    let cancelled = false;
+
+    void (async () => {
+      const { gsap } = await import("gsap");
+      const { ScrollTrigger } = await import("gsap/ScrollTrigger");
+      if (cancelled) return;
+      gsap.registerPlugin(ScrollTrigger);
+
+      scrollCtxRef.current = gsap.context(() => {
+        gsap.to(row, {
+          x: () => -(row.scrollWidth - window.innerWidth),
+          ease: "none",
+          scrollTrigger: {
+            trigger: outer,
+            start: "top top",
+            end: "bottom bottom",
+            scrub: 1.5,
+            pin: sticky,
+            invalidateOnRefresh: true,
+            anticipatePin: 1,
+            onUpdate: (self) => {
+              const p = self.progress;
+              if (progressRef.current) {
+                progressRef.current.style.width = `${p * 100}%`;
+              }
+              const idx = Math.min(
+                CHRONICLE_PANELS.length - 1,
+                Math.floor(p * CHRONICLE_PANELS.length)
+              );
+              if (labelRef.current) {
+                const k = CHRONICLE_PANELS[idx]?.k ?? "01";
+                labelRef.current.textContent = `${k} / 05`;
+              }
+            },
           },
-        },
-      });
-    }, outer);
+        });
+      }, outer);
+    })();
 
-    return () => ctx.revert();
-  }, [mobile]);
+    return () => {
+      cancelled = true;
+      scrollCtxRef.current?.revert();
+      scrollCtxRef.current = null;
+    };
+  }, [layout]);
 
-  if (mobile) {
+  if (layout === "pending") {
+    return (
+      <section
+        className="flex min-h-[100svh] items-center justify-center bg-[var(--obsidian-950)]"
+        aria-label="The grove chronicles"
+      >
+        <p className="font-km-mono text-[0.62rem] tracking-[0.2em] text-[color:rgba(253,252,248,0.25)]">LOADING…</p>
+      </section>
+    );
+  }
+
+  if (layout === "mobile") {
     return (
       <section aria-label="The grove chronicles" className="bg-[var(--obsidian-950)] px-4 py-20 sm:px-6">
         <p className="font-km-mono text-center text-[0.62rem] tracking-[0.24em] text-[color:var(--gold-light)]">

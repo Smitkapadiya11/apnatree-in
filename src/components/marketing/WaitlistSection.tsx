@@ -30,7 +30,9 @@ export function WaitlistSection() {
       if (result.success) {
         setStatus("success");
         setMessage(
-          "You're on the canopy memo. A concierge agent will reach out before the next batch opens."
+          result.data.offline
+            ? "Request received. Our ledger is temporarily offline — please email concierge@apnatree.in so we can confirm your spot."
+            : "You're on the canopy memo. A concierge agent will reach out before the next batch opens."
         );
         setEmail("");
         setName("");

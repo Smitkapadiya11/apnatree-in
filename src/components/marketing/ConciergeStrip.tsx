@@ -20,7 +20,11 @@ export function ConciergeStrip() {
       const result = await submitConciergeCallRequest({ email });
       if (result.success) {
         setStatus("success");
-        setMessage("Concierge will reach out within one business day.");
+        setMessage(
+          result.data.offline
+            ? "Request noted. Database is offline — email concierge@apnatree.in directly and we will reply within one business day."
+            : "Concierge will reach out within one business day."
+        );
         setEmail("");
         return;
       }

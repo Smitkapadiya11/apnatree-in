@@ -17,7 +17,9 @@ const conciergeSchema = z.object({
   email: z.string().trim().email().max(320),
 });
 
-export async function submitConciergeCallRequest(input: unknown): Promise<ActionResult<{ ok: true }>> {
+export type WaitlistSaveOk = { ok: true; offline?: boolean };
+
+export async function submitConciergeCallRequest(input: unknown): Promise<ActionResult<WaitlistSaveOk>> {
   try {
     const parsed = conciergeSchema.safeParse(input);
     if (!parsed.success) {
@@ -26,27 +28,31 @@ export async function submitConciergeCallRequest(input: unknown): Promise<Action
 
     const email = parsed.data.email.toLowerCase();
 
-    await prisma.waitlist.upsert({
-      where: { email },
-      create: {
-        email,
-        name: null,
-        tier: null,
-      },
-      update: {
-        email,
-      },
-    });
-
-    revalidatePath("/");
-    return { success: true, data: { ok: true } };
+    try {
+      await prisma.waitlist.upsert({
+        where: { email },
+        create: {
+          email,
+          name: null,
+          tier: null,
+        },
+        update: {
+          email,
+        },
+      });
+      revalidatePath("/");
+      return { success: true, data: { ok: true } };
+    } catch (dbError) {
+      console.error("[submitConciergeCallRequest] DB unavailable:", dbError);
+      return { success: true, data: { ok: true, offline: true } };
+    }
   } catch (error) {
     console.error("[submitConciergeCallRequest]", error);
     return { success: false, error: "We could not save that right now. Please try again shortly." };
   }
 }
 
-export async function submitWaitlist(input: unknown): Promise<ActionResult<{ ok: true }>> {
+export async function submitWaitlist(input: unknown): Promise<ActionResult<WaitlistSaveOk>> {
   try {
     const parsed = waitlistSchema.safeParse(input);
     if (!parsed.success) {
@@ -56,21 +62,25 @@ export async function submitWaitlist(input: unknown): Promise<ActionResult<{ ok:
     const email = parsed.data.email.toLowerCase();
     const name = parsed.data.name && parsed.data.name.length > 0 ? parsed.data.name : null;
 
-    await prisma.waitlist.upsert({
-      where: { email },
-      create: {
-        email,
-        name,
-        tier: parsed.data.tier,
-      },
-      update: {
-        name,
-        tier: parsed.data.tier,
-      },
-    });
-
-    revalidatePath("/");
-    return { success: true, data: { ok: true } };
+    try {
+      await prisma.waitlist.upsert({
+        where: { email },
+        create: {
+          email,
+          name,
+          tier: parsed.data.tier,
+        },
+        update: {
+          name,
+          tier: parsed.data.tier,
+        },
+      });
+      revalidatePath("/");
+      return { success: true, data: { ok: true } };
+    } catch (dbError) {
+      console.error("[submitWaitlist] DB unavailable:", dbError);
+      return { success: true, data: { ok: true, offline: true } };
+    }
   } catch (error) {
     console.error("[submitWaitlist]", error);
     return { success: false, error: "We could not save that right now. Please try again shortly." };

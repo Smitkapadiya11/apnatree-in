@@ -14,14 +14,25 @@ export function KingsmanCursor() {
   const mouse = React.useRef({ x: 0, y: 0 });
   const ring = React.useRef({ x: 0, y: 0 });
   const hovering = React.useRef(false);
-  const clicking = React.useRef(false);
   const raf = React.useRef<number>(0);
 
   React.useEffect(() => {
-    const mq = window.matchMedia("(max-width: 768px)");
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (typeof window === "undefined") return;
 
-    const disable = () => mq.matches || reduced.matches;
+    const noHover = window.matchMedia("(hover: none)").matches;
+    const narrow = window.matchMedia("(max-width: 768px)").matches;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (noHover || narrow || reduced) {
+      return;
+    }
+
+    const dot = dotRef.current;
+    const ringEl = ringRef.current;
+    if (!dot || !ringEl) return;
+
+    dot.style.opacity = "1";
+    ringEl.style.opacity = "1";
 
     const syncHoverFromTarget = (target: EventTarget | null) => {
       if (!(target instanceof Element)) {
@@ -40,75 +51,50 @@ export function KingsmanCursor() {
     };
 
     const onDown = () => {
-      clicking.current = true;
-      ringRef.current?.classList.add("clicking");
+      ringEl.classList.add("clicking");
     };
     const onUp = () => {
-      clicking.current = false;
-      ringRef.current?.classList.remove("clicking");
+      ringEl.classList.remove("clicking");
     };
 
     const loop = () => {
       ring.current.x = lerp(ring.current.x, mouse.current.x, LERP);
       ring.current.y = lerp(ring.current.y, mouse.current.y, LERP);
 
-      const dot = dotRef.current;
-      const ringEl = ringRef.current;
-      if (dot) {
-        dot.style.left = `${mouse.current.x}px`;
-        dot.style.top = `${mouse.current.y}px`;
-      }
-      if (ringEl) {
-        ringEl.style.left = `${ring.current.x}px`;
-        ringEl.style.top = `${ring.current.y}px`;
-        ringEl.classList.toggle("hovering", hovering.current);
-      }
+      dot.style.transform = `translate(${mouse.current.x}px, ${mouse.current.y}px) translate(-50%, -50%)`;
+      ringEl.style.transform = `translate(${ring.current.x}px, ${ring.current.y}px) translate(-50%, -50%)`;
+      ringEl.classList.toggle("hovering", hovering.current);
 
       raf.current = requestAnimationFrame(loop);
     };
 
-    const start = () => {
-      if (disable()) return;
-      window.addEventListener("mousemove", onMove);
-      window.addEventListener("mousedown", onDown);
-      window.addEventListener("mouseup", onUp);
-      raf.current = requestAnimationFrame(loop);
-    };
+    window.addEventListener("mousemove", onMove, { passive: true });
+    window.addEventListener("mousedown", onDown, { passive: true });
+    window.addEventListener("mouseup", onUp, { passive: true });
+    raf.current = requestAnimationFrame(loop);
 
-    const stop = () => {
+    return () => {
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mousedown", onDown);
       window.removeEventListener("mouseup", onUp);
       cancelAnimationFrame(raf.current);
-    };
-
-    const apply = () => {
-      stop();
-      const el = ringRef.current?.parentElement;
-      if (!el) return;
-      if (disable()) {
-        el.style.display = "none";
-        return;
-      }
-      el.style.display = "";
-      start();
-    };
-
-    apply();
-    mq.addEventListener("change", apply);
-    reduced.addEventListener("change", apply);
-
-    return () => {
-      mq.removeEventListener("change", apply);
-      reduced.removeEventListener("change", apply);
-      stop();
+      dot.style.opacity = "0";
+      ringEl.style.opacity = "0";
     };
   }, []);
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-[10050] hidden md:block">
-      <div ref={dotRef} className="cursor-dot fixed top-0 left-0 will-change-transform" />
-      <div ref={ringRef} className="cursor-ring fixed top-0 left-0 will-change-transform" />
+      <div
+        ref={dotRef}
+        className="cursor-dot fixed left-0 top-0 opacity-0"
+        style={{ transform: "translate(-100px, -100px) translate(-50%, -50%)" }}
+      />
+      <div
+        ref={ringRef}
+        className="cursor-ring fixed left-0 top-0 opacity-0"
+        style={{ transform: "translate(-100px, -100px) translate(-50%, -50%)" }}
+      />
     </div>
   );
 }

@@ -6,7 +6,11 @@ import { ContractDuration, TreeTier } from "@prisma/client";
 
 import { BookingPanel } from "@/components/booking/BookingPanel";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getAvailableCountForTier, getCachedSiteConfigValue } from "@/lib/cache/queries";
+import {
+  getAvailableCountForTier,
+  getCachedSiteConfigValue,
+  MARKETING_FALLBACK_TIER_AVAILABILITY,
+} from "@/lib/cache/queries";
 import { calculatePricing, getExpectedYieldRange, getTierLabel } from "@/lib/pricing";
 
 export const revalidate = 1800;
@@ -70,10 +74,16 @@ export async function generateMetadata({
 }
 
 async function TierBookingSection({ tier }: { tier: TreeTier }) {
-  const [availability, prebookingFlag] = await Promise.all([
-    getAvailableCountForTier(tier),
-    getCachedSiteConfigValue("prebooking_open"),
-  ]);
+  let availability = MARKETING_FALLBACK_TIER_AVAILABILITY[tier];
+  let prebookingFlag: string | null = "true";
+  try {
+    [availability, prebookingFlag] = await Promise.all([
+      getAvailableCountForTier(tier),
+      getCachedSiteConfigValue("prebooking_open"),
+    ]);
+  } catch (error) {
+    console.error("[TierBookingSection]", error);
+  }
 
   const initialPricing = calculatePricing(tier, ContractDuration.ONE_YEAR);
 

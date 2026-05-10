@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ContractDuration, TreeTier } from "@prisma/client";
 
-import { getCachedTreeAvailability } from "@/lib/cache/queries";
+import { getCachedTreeAvailability, MARKETING_FALLBACK_TIER_AVAILABILITY } from "@/lib/cache/queries";
 import { KINGSMAN_MEDIA } from "@/lib/kingsman-media";
 import { calculatePricing, getExpectedYieldRange, getTierLabel } from "@/lib/pricing";
 
@@ -38,7 +38,13 @@ const TIER_META: Record<
 };
 
 export async function TreeTierCards() {
-  const availability = await getCachedTreeAvailability();
+  let availabilityMap: Awaited<ReturnType<typeof getCachedTreeAvailability>>;
+  try {
+    availabilityMap = await getCachedTreeAvailability();
+  } catch (error) {
+    console.error("[TreeTierCards] availability", error);
+    availabilityMap = MARKETING_FALLBACK_TIER_AVAILABILITY;
+  }
 
   return (
     <section
@@ -61,7 +67,7 @@ export async function TreeTierCards() {
         {TIERS.map((tier) => {
           const meta = TIER_META[tier];
           const pricing = calculatePricing(tier, ContractDuration.ONE_YEAR);
-          const open = availability[tier];
+          const open = availabilityMap[tier];
           const soldOut = !open;
           const featured = tier === TreeTier.MEDIUM;
 

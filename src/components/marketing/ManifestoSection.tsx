@@ -2,76 +2,84 @@
 
 import * as React from "react";
 
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
-
 export function ManifestoSection() {
   const rootRef = React.useRef<HTMLElement>(null);
   const ruleRef = React.useRef<HTMLDivElement>(null);
   const statRef = React.useRef<HTMLSpanElement>(null);
+  const ctxRef = React.useRef<{ revert: () => void } | null>(null);
 
   React.useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let cancelled = false;
 
-    const ctx = gsap.context(() => {
-      const blocks = gsap.utils.toArray<HTMLElement>("[data-km-manifesto]");
-      if (!reduced) {
-        blocks.forEach((el) => {
-          gsap.from(el, {
-            opacity: 0,
-            y: 40,
-            duration: 1,
+    void (async () => {
+      const { gsap } = await import("gsap");
+      const { ScrollTrigger } = await import("gsap/ScrollTrigger");
+      if (cancelled) return;
+      gsap.registerPlugin(ScrollTrigger);
+
+      ctxRef.current = gsap.context(() => {
+        const blocks = gsap.utils.toArray<HTMLElement>("[data-km-manifesto]");
+        if (!reduced) {
+          blocks.forEach((el) => {
+            gsap.from(el, {
+              opacity: 0,
+              y: 40,
+              duration: 1,
+              ease: "power3.out",
+              scrollTrigger: {
+                trigger: el,
+                start: "top 86%",
+                toggleActions: "play none none none",
+              },
+            });
+          });
+        }
+
+        if (ruleRef.current && !reduced) {
+          gsap.from(ruleRef.current, {
+            scaleY: 0,
+            transformOrigin: "top center",
+            duration: 1.1,
             ease: "power3.out",
             scrollTrigger: {
-              trigger: el,
-              start: "top 86%",
+              trigger: root,
+              start: "top 80%",
               toggleActions: "play none none none",
             },
           });
-        });
-      }
+        }
 
-      if (ruleRef.current && !reduced) {
-        gsap.from(ruleRef.current, {
-          scaleY: 0,
-          transformOrigin: "top center",
-          duration: 1.1,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: root,
-            start: "top 80%",
-            toggleActions: "play none none none",
-          },
-        });
-      }
+        const stat = statRef.current;
+        if (stat && !reduced) {
+          const counter = { v: 0 };
+          gsap.to(counter, {
+            v: 22,
+            duration: 2.2,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: stat,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            },
+            onUpdate: () => {
+              stat.textContent = `${Math.round(counter.v)}`;
+            },
+          });
+        } else if (stat) {
+          stat.textContent = "22";
+        }
+      }, root);
+    })();
 
-      const stat = statRef.current;
-      if (stat && !reduced) {
-        const counter = { v: 0 };
-        gsap.to(counter, {
-          v: 22,
-          duration: 2.2,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: stat,
-            start: "top 85%",
-            toggleActions: "play none none none",
-          },
-          onUpdate: () => {
-            stat.textContent = `${Math.round(counter.v)}`;
-          },
-        });
-      } else if (stat) {
-        stat.textContent = "22";
-      }
-    }, root);
-
-    return () => ctx.revert();
+    return () => {
+      cancelled = true;
+      ctxRef.current?.revert();
+      ctxRef.current = null;
+    };
   }, []);
 
   return (
