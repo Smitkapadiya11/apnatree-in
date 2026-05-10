@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ContractDuration, TreeTier } from "@prisma/client";
 
+import { TierCardsIntro } from "@/components/marketing/TierCardsIntro";
 import { getCachedTreeAvailability, MARKETING_FALLBACK_TIER_AVAILABILITY } from "@/lib/cache/queries";
 import { KINGSMAN_MEDIA } from "@/lib/kingsman-media";
 import { calculatePricing, getExpectedYieldRange, getTierLabel } from "@/lib/pricing";
@@ -51,17 +52,7 @@ export async function TreeTierCards() {
       id="trees"
       className="texture-linen relative bg-[var(--obsidian-950)] px-[clamp(1.5rem,5vw,4rem)] py-[clamp(6rem,11vw,10rem)]"
     >
-      <div className="mx-auto max-w-[1200px] text-center">
-        <p className="font-km-mono text-[0.62rem] tracking-[0.26em] text-[color:var(--gold-light)]">
-          ALLOTMENT TIERS · 2025 SEASON
-        </p>
-        <h2 className="font-[family-name:var(--font-heading)] mt-5 text-[clamp(2.25rem,5vw,4rem)] font-light text-[color:var(--ivory-50)]">
-          Choose your canopy.
-        </h2>
-        <p className="mx-auto mt-5 max-w-2xl font-[family-name:var(--font-body)] text-[0.95rem] font-light text-[color:rgba(253,252,248,0.42)]">
-          Each tier mirrors a living arc on the ridge — availability refreshes hourly inside checkout.
-        </p>
-      </div>
+      <TierCardsIntro />
 
       <div className="mx-auto mt-16 grid max-w-[1240px] gap-10 md:grid-cols-2 lg:grid-cols-3">
         {TIERS.map((tier) => {

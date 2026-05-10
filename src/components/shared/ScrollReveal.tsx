@@ -1,45 +1,22 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { motion, useReducedMotion, type Variants } from "framer-motion";
 
-import { fadeInUp } from "@/lib/animations";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { cn } from "@/lib/utils";
 
 type ScrollRevealProps = {
   children: ReactNode;
   className?: string;
-  variants?: Variants;
-  delay?: number;
-  /** Margin passed to the IntersectionObserver root margin. Negative pulls trigger inward. */
-  rootMargin?: string;
-  /** Re-trigger every time the element enters viewport. Defaults to `true` (single-shot). */
-  once?: boolean;
+  threshold?: number;
 };
 
-export function ScrollReveal({
-  children,
-  className,
-  variants = fadeInUp,
-  delay = 0,
-  rootMargin = "-10% 0px",
-  once = true,
-}: ScrollRevealProps) {
-  const reduceMotion = useReducedMotion();
-
-  if (reduceMotion) {
-    return <div className={className}>{children}</div>;
-  }
+export function ScrollReveal({ children, className, threshold }: ScrollRevealProps) {
+  const { ref, visible } = useScrollReveal(threshold);
 
   return (
-    <motion.div
-      className={className}
-      variants={variants}
-      initial="initial"
-      whileInView="animate"
-      viewport={{ once, margin: rootMargin }}
-      transition={delay ? { delay } : undefined}
-    >
+    <div ref={ref} className={cn("reveal-transition", visible && "reveal-transition-visible", className)}>
       {children}
-    </motion.div>
+    </div>
   );
 }

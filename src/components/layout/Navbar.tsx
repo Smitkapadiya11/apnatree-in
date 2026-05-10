@@ -25,7 +25,7 @@ export function Navbar() {
   React.useEffect(() => {
     const sync = () => {
       const y = lenis ? lenis.scroll : window.scrollY;
-      setScrolled(y > 80);
+      setScrolled(y > 60);
     };
 
     if (lenis) {
@@ -55,7 +55,7 @@ export function Navbar() {
   }, [open]);
 
   const shell = scrolled
-    ? "border-b border-[color:rgba(253,252,248,0.06)] bg-[color:rgba(9,13,16,0.88)] shadow-[0_1px_0_rgba(184,145,42,0.08),0_8px_40px_rgba(5,8,10,0.4)] backdrop-blur-[32px] backdrop-saturate-[160%]"
+    ? "border-b border-[color:rgba(184,145,42,0.14)] bg-[color:rgba(9,13,16,0.88)] shadow-[0_4px_32px_rgba(0,0,0,0.4)] backdrop-blur-[16px] backdrop-saturate-[180%]"
     : "border-b border-transparent bg-transparent";
 
   return (
@@ -64,7 +64,7 @@ export function Navbar() {
         <nav
           aria-label="Primary"
           className="mx-auto flex h-full max-w-[1440px] items-center gap-4 px-[clamp(1.5rem,5vw,4rem)]"
-          style={{ WebkitBackdropFilter: scrolled ? "blur(32px) saturate(160%)" : undefined }}
+          style={{ WebkitBackdropFilter: scrolled ? "blur(16px) saturate(180%)" : undefined }}
         >
           <div className="flex min-w-0 flex-1 items-center justify-start">
             <Link

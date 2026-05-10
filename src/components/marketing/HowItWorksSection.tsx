@@ -1,3 +1,7 @@
+"use client";
+
+import { ScrollReveal } from "@/components/shared/ScrollReveal";
+
 const STEPS = [
   {
     n: "01",
@@ -31,7 +35,7 @@ export function HowItWorksSection() {
       id="how-it-works"
       className="relative border-y border-[color:rgba(253,252,248,0.06)] bg-[var(--obsidian-900)] px-[clamp(1.5rem,5vw,4rem)] py-[clamp(6rem,11vw,10rem)]"
     >
-      <div className="mx-auto max-w-[1200px] text-center">
+      <ScrollReveal className="mx-auto max-w-[1200px] text-center">
         <p className="font-km-mono text-[0.65rem] tracking-[0.26em] text-[color:var(--gold-light)]">OPERATING CADENCE</p>
         <h2 className="font-[family-name:var(--font-heading)] mt-5 text-[clamp(2.25rem,5vw,4rem)] font-light tracking-tight text-[color:var(--ivory-50)]">
           Four movements. One harvest.
@@ -39,9 +43,9 @@ export function HowItWorksSection() {
         <p className="mx-auto mt-6 max-w-2xl font-[family-name:var(--font-body)] text-[0.95rem] font-light leading-relaxed text-[color:rgba(253,252,248,0.45)]">
           Grove-to-door rhythm drafted by agronomists and enforced by the same stack your dashboard trusts after checkout.
         </p>
-      </div>
+      </ScrollReveal>
 
-      <div className="mx-auto mt-16 grid max-w-[1200px] gap-6 md:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+      <ScrollReveal className="mx-auto mt-16 grid max-w-[1200px] gap-6 md:grid-cols-2 lg:grid-cols-4 lg:gap-5" threshold={0.06}>
         {STEPS.map((step) => (
           <article
             key={step.n}
@@ -62,7 +66,7 @@ export function HowItWorksSection() {
             </p>
           </article>
         ))}
-      </div>
+      </ScrollReveal>
     </section>
   );
 }

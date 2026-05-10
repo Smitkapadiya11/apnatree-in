@@ -2,8 +2,11 @@
 
 import * as React from "react";
 
+import { MARKETING_VIDEOS } from "@/lib/marketing-videos";
+
 export function ManifestoSection() {
   const rootRef = React.useRef<HTMLElement>(null);
+  const videoParallaxRef = React.useRef<HTMLDivElement>(null);
   const ruleRef = React.useRef<HTMLDivElement>(null);
   const statRef = React.useRef<HTMLSpanElement>(null);
   const ctxRef = React.useRef<{ revert: () => void } | null>(null);
@@ -22,6 +25,24 @@ export function ManifestoSection() {
       gsap.registerPlugin(ScrollTrigger);
 
       ctxRef.current = gsap.context(() => {
+        const videoWrap = videoParallaxRef.current;
+        if (videoWrap && !reduced) {
+          gsap.fromTo(
+            videoWrap,
+            { yPercent: -7 },
+            {
+              yPercent: 7,
+              ease: "none",
+              scrollTrigger: {
+                trigger: root,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: true,
+              },
+            }
+          );
+        }
+
         const blocks = gsap.utils.toArray<HTMLElement>("[data-km-manifesto]");
         if (!reduced) {
           blocks.forEach((el) => {
@@ -85,9 +106,27 @@ export function ManifestoSection() {
   return (
     <section
       ref={rootRef}
-      className="relative bg-[var(--obsidian-950)] px-[clamp(1.5rem,5vw,4rem)] py-[clamp(7rem,14vw,12rem)]"
+      className="relative overflow-hidden bg-[var(--obsidian-950)] px-[clamp(1.5rem,5vw,4rem)] py-[clamp(7rem,14vw,12rem)]"
     >
-      <div className="mx-auto grid max-w-[1200px] gap-16 lg:grid-cols-[2fr_3fr] lg:items-start lg:gap-24">
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+        <div ref={videoParallaxRef} className="absolute inset-[-12%] will-change-transform">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            className="absolute inset-0 h-full w-full scale-[1.12] object-cover"
+            style={{ filter: "brightness(0.08) saturate(0.55)" }}
+            aria-hidden
+          >
+            <source src={MARKETING_VIDEOS.girSunrise} type="video/mp4" />
+          </video>
+        </div>
+        <div className="absolute inset-0 bg-[rgba(6,5,4,0.52)]" aria-hidden />
+      </div>
+
+      <div className="relative z-10 mx-auto grid max-w-[1200px] gap-16 lg:grid-cols-[2fr_3fr] lg:items-start lg:gap-24">
         <div className="relative flex gap-6">
           <div ref={ruleRef} className="mt-2 h-[60px] w-px bg-[color:var(--gold-primary)]" aria-hidden />
           <div>

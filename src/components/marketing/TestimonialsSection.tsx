@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 
+import { ScrollReveal } from "@/components/shared/ScrollReveal";
 import { KINGSMAN_MEDIA } from "@/lib/kingsman-media";
 
 type Testimonial = {
@@ -32,13 +35,13 @@ const ROWS: Testimonial[] = [
 
 export function TestimonialsSection() {
   return (
-    <section className="bg-[var(--ivory-50)] px-[clamp(1.5rem,5vw,4rem)] py-[clamp(6rem,11vw,10rem)] text-[color:var(--obsidian-900)]">
-      <div className="mx-auto max-w-[1200px] text-center">
+    <section className="editorial-section bg-[var(--obsidian-950)] px-[clamp(1.5rem,5vw,4rem)] py-[clamp(6rem,11vw,10rem)] text-[color:var(--brand-cream)]">
+      <ScrollReveal className="mx-auto max-w-[1200px] text-center">
         <p className="font-km-mono text-[0.62rem] tracking-[0.26em] text-[color:var(--gold-primary)]">EDITORIAL</p>
-        <h2 className="font-[family-name:var(--font-heading)] mt-5 text-[clamp(2rem,4vw,3.25rem)] font-light text-[color:var(--obsidian-900)]">
+        <h2 className="font-[family-name:var(--font-heading)] mt-5 text-[clamp(2rem,4vw,3.25rem)] font-light text-[color:var(--brand-cream)]">
           Voices from the ledger.
         </h2>
-      </div>
+      </ScrollReveal>
 
       <div className="mx-auto mt-16 max-w-[1100px]">
         {ROWS.map((row, index) => {
@@ -51,15 +54,15 @@ export function TestimonialsSection() {
               >
                 “
               </span>
-              <blockquote className="fade-on-scroll-km slide-up-on-scroll-km relative max-w-[520px] font-[family-name:var(--font-heading)] text-[clamp(1.45rem,2.5vw,2rem)] font-light italic leading-snug text-[color:rgba(9,13,16,0.82)]">
+              <blockquote className="fade-on-scroll-km slide-up-on-scroll-km relative max-w-[520px] font-[family-name:var(--font-heading)] text-[clamp(1.45rem,2.5vw,2rem)] font-light italic leading-snug text-[color:rgba(253,252,248,0.82)]">
                 {row.body}
               </blockquote>
               <div className="space-y-3">
                 <div className="h-px w-8 bg-[color:var(--gold-primary)]" aria-hidden />
-                <p className="font-[family-name:var(--font-body)] text-[0.9rem] font-medium text-[color:var(--obsidian-900)]">
+                <p className="font-[family-name:var(--font-body)] text-[0.9rem] font-medium text-[color:var(--brand-cream)]">
                   {row.author}
                 </p>
-                <p className="font-km-mono text-[0.6rem] tracking-[0.15em] text-[color:rgba(9,13,16,0.42)]">{row.meta}</p>
+                <p className="font-km-mono text-[0.6rem] uppercase tracking-[0.15em] text-[color:var(--gold-primary)]">{row.meta}</p>
               </div>
             </div>
           );
@@ -87,7 +90,7 @@ export function TestimonialsSection() {
                 )}
               </div>
               {index < ROWS.length - 1 ? (
-                <div className="h-px w-full bg-[color:var(--ivory-300)]" aria-hidden />
+                <div className="h-px w-full bg-[rgba(184,145,42,0.18)]" aria-hidden />
               ) : null}
             </div>
           );

@@ -3,6 +3,8 @@ import { Suspense } from "react";
 import { ConciergeStrip } from "@/components/marketing/ConciergeStrip";
 import { HeroSection } from "@/components/marketing/HeroSection";
 import { HorizontalChronicles } from "@/components/marketing/HorizontalChronicles";
+import { VideoShowcase } from "@/components/marketing/VideoShowcase";
+import { VideoStrip } from "@/components/marketing/VideoStrip";
 import { HowItWorksSection } from "@/components/marketing/HowItWorksSection";
 import { ManifestoSection } from "@/components/marketing/ManifestoSection";
 import { StatsSection } from "@/components/marketing/StatsSection";
@@ -35,11 +37,13 @@ export default function HomePage() {
       <ManifestoSection />
       <HowItWorksSection />
       <HorizontalChronicles />
+      <VideoShowcase />
       <Suspense fallback={<TierLoading />}>
         <TreeTierCards />
       </Suspense>
       <StatsSection />
       <TestimonialsSection />
+      <VideoStrip />
       <ConciergeStrip />
       <WaitlistSection />
     </>

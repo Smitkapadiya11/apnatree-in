@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 
+import { GirMap } from "@/components/marketing/GirMap";
 import { FARM_MEDIA, FARM_MEDIA_FALLBACKS } from "@/lib/farm-media";
 
 export const revalidate = 86400;
@@ -82,11 +83,18 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="container-luxe">
-        <p className="eyebrow">Map note</p>
-        <p className="text-[color:var(--muted-foreground)] mt-3 max-w-3xl leading-relaxed">
-          Static photography replaces embedded maps for Core Web Vitals — navigate to Talala Taluka (Gir Somnath) for geographic reference while we finalize illustration assets.
-        </p>
+      <section className="container-luxe grid gap-12 lg:grid-cols-[1fr_1.05fr] lg:items-center">
+        <div className="space-y-4">
+          <p className="eyebrow">Where we steward</p>
+          <h2 className="font-[family-name:var(--font-heading)] text-3xl tracking-tight text-[color:var(--brand-forest)]">
+            Gir Somnath corridor
+          </h2>
+          <p className="text-[color:var(--muted-foreground)] max-w-xl leading-relaxed">
+            The grove sits in Talala Taluka within Gir Somnath — limestone ridges at the forest edge. No live map tiles here:
+            we ship a crafted locator instead of third-party embeds for privacy and performance.
+          </p>
+        </div>
+        <GirMap />
       </section>
     </article>
   );

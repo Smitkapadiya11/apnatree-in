@@ -663,3 +663,70 @@ main#main-content.marketing-premium > section:not(.surface-cream):not(.waitlist-
     animation: none !important;
   }
 }
+
+/* ── Scroll reveals (IntersectionObserver companion) ─────────────────────── */
+.reveal-transition {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.85s ease,
+    transform 0.85s ease;
+}
+
+.reveal-transition-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-transition,
+  .reveal-transition-visible {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* Video showcase: stack on narrow viewports */
+@media (max-width: 767px) {
+  .vs-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .vs-card-span {
+    grid-column: span 1 !important;
+    aspect-ratio: 16 / 9 !important;
+  }
+}
+
+.editorial-section {
+  background: var(--obsidian-950);
+  color: var(--brand-cream);
+}
+
+.stat-number {
+  text-shadow: 0 0 60px rgba(184, 145, 42, 0.35);
+}
+
+/* Premium scrollbar (does not affect Firefox flat scrollbars uniformly) */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--obsidian-950);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(184, 145, 42, 0.4);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(184, 145, 42, 0.7);
+}
+
+::selection {
+  background: rgba(184, 145, 42, 0.35);
+  color: var(--brand-cream);
+}

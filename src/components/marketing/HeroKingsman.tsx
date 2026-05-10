@@ -4,8 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
 
+import { HeroParticles } from "@/components/marketing/HeroParticles";
 import { useLenis } from "@/contexts/LenisContext";
 import { MEDIA } from "@/lib/farm-media-client";
+import { MARKETING_VIDEOS } from "@/lib/marketing-videos";
 
 function prefersReducedMotion() {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -131,6 +133,23 @@ export function HeroKingsman() {
   }, [lenis]);
 
   const [heroImg, setHeroImg] = React.useState(MEDIA.images.hero[0] ?? "/media/20260503_093551.jpg");
+  const [mediaFallback, setMediaFallback] = React.useState(false);
+  const [videoPreload, setVideoPreload] = React.useState<"none" | "metadata" | "auto">("metadata");
+  const [useReducedMotion, setUseReducedMotion] = React.useState(false);
+
+  React.useEffect(() => {
+    setUseReducedMotion(prefersReducedMotion());
+  }, []);
+
+  React.useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const apply = () => setVideoPreload(mq.matches ? "auto" : "none");
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+
+  const showPosterStill = useReducedMotion || mediaFallback;
 
   return (
     <section
@@ -139,16 +158,33 @@ export function HeroKingsman() {
       aria-label="Hero"
     >
       <div ref={imgScaleRef} className="absolute inset-0 z-0 origin-center">
-        <Image
-          src={heroImg}
-          alt=""
-          fill
-          priority
-          quality={90}
-          sizes="100vw"
-          className="object-cover max-md:object-[60%_35%] md:object-[center_35%]"
-          onError={() => setHeroImg(MEDIA.images.hero[1] ?? "/media/20260503_093551.jpg")}
-        />
+        {showPosterStill ? (
+          <Image
+            src={heroImg}
+            alt=""
+            fill
+            priority
+            quality={90}
+            sizes="100vw"
+            className="object-cover max-md:object-[60%_35%] md:object-[center_35%]"
+            onError={() => setHeroImg(MEDIA.images.hero[1] ?? "/media/20260503_093551.jpg")}
+          />
+        ) : (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload={videoPreload}
+            poster={heroImg}
+            className="absolute inset-0 h-full w-full object-cover max-md:object-[60%_35%] md:object-[center_35%]"
+            style={{ filter: "brightness(0.42) saturate(1.08) contrast(1.05)" }}
+            onError={() => setMediaFallback(true)}
+            aria-hidden
+          >
+            <source src={MARKETING_VIDEOS.heroDrone} type="video/mp4" />
+          </video>
+        )}
       </div>
 
       <div
@@ -177,7 +213,9 @@ export function HeroKingsman() {
 
       <div aria-hidden className="km-grain-hero pointer-events-none absolute inset-0 z-[2]" />
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-[15%] left-[clamp(1.5rem,7vw,6rem)] z-10 max-w-[780px] space-y-7 text-[color:var(--ivory-50)] [&_a]:pointer-events-auto [&_button]:pointer-events-auto">
+      {!useReducedMotion ? <HeroParticles /> : null}
+
+      <div className="pointer-events-none absolute inset-x-0 bottom-[15%] left-[clamp(1.5rem,7vw,6rem)] z-20 max-w-[780px] space-y-7 text-[color:var(--ivory-50)] [&_a]:pointer-events-auto [&_button]:pointer-events-auto">
         <p ref={provenanceRef} className="font-km-mono text-[0.65rem] tracking-[0.28em] text-[color:var(--gold-light)]">
           GIR FOREST · JUNAGADH · GUJARAT
         </p>
@@ -231,7 +269,7 @@ export function HeroKingsman() {
 
       <div
         ref={scrollRef}
-        className="pointer-events-none absolute bottom-10 left-[clamp(1.5rem,7vw,6rem)] z-10 hidden flex-col items-start gap-2 md:flex"
+        className="pointer-events-none absolute bottom-10 left-[clamp(1.5rem,7vw,6rem)] z-20 hidden flex-col items-start gap-2 md:flex"
       >
         <span className="font-km-mono text-[0.55rem] tracking-[0.28em] text-[color:var(--ivory-50)]/30">SCROLL</span>
         <span className="km-scroll-line" />

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import * as React from "react";
 
+import { ScrollReveal } from "@/components/shared/ScrollReveal";
 import { CHRONICLE_PANELS } from "@/lib/kingsman-media";
 
 type LayoutMode = "pending" | "mobile" | "desktop";
@@ -94,12 +95,14 @@ export function HorizontalChronicles() {
   if (layout === "mobile") {
     return (
       <section aria-label="The grove chronicles" className="bg-[var(--obsidian-950)] px-4 py-20 sm:px-6">
-        <p className="font-km-mono text-center text-[0.62rem] tracking-[0.24em] text-[color:var(--gold-light)]">
-          THE GROVE CHRONICLES
-        </p>
-        <h2 className="font-[family-name:var(--font-heading)] mt-4 text-center text-[clamp(2rem,6vw,3rem)] font-light text-[color:var(--ivory-50)]">
-          Five frames from one covenant.
-        </h2>
+        <ScrollReveal className="text-center">
+          <p className="font-km-mono text-[0.62rem] tracking-[0.24em] text-[color:var(--gold-light)]">
+            THE GROVE CHRONICLES
+          </p>
+          <h2 className="font-[family-name:var(--font-heading)] mt-4 text-[clamp(2rem,6vw,3rem)] font-light text-[color:var(--ivory-50)]">
+            Five frames from one covenant.
+          </h2>
+        </ScrollReveal>
         <div className="mx-auto mt-12 flex max-w-xl flex-col gap-10">
           {CHRONICLE_PANELS.map((panel) => (
             <article key={panel.k} className="overflow-hidden rounded-[8px] border border-[color:rgba(253,252,248,0.08)]">
@@ -129,14 +132,14 @@ export function HorizontalChronicles() {
     <section ref={outerRef} className="relative h-[500vh] bg-[var(--obsidian-950)]" aria-label="The grove chronicles">
       <div ref={stickyRef} className="sticky top-0 h-[100svh] overflow-hidden">
         <div className="pointer-events-none absolute inset-x-0 top-10 z-20 flex justify-center px-6">
-          <div className="text-center">
+          <ScrollReveal className="text-center">
             <p className="font-km-mono text-[0.62rem] tracking-[0.24em] text-[color:var(--gold-light)]">
               THE GROVE CHRONICLES
             </p>
             <h2 className="font-[family-name:var(--font-heading)] mt-3 text-[clamp(2rem,4vw,3rem)] font-light text-[color:var(--ivory-50)]">
               Scroll the grove. Five proofs.
             </h2>
-          </div>
+          </ScrollReveal>
         </div>
 
         <div ref={rowRef} className="flex h-full w-max flex-row will-change-transform">

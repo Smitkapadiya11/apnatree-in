@@ -3,6 +3,7 @@ import { Cormorant_Garamond, DM_Mono, DM_Sans } from "next/font/google";
 
 import { Providers } from "@/components/layout/Providers";
 import { RootMotion } from "@/components/layout/RootMotion";
+import { GrainOverlay } from "@/components/shared/GrainOverlay";
 import { UploadThingSSR } from "@/components/shared/UploadThingSSR";
 
 import "@uploadthing/react/styles.css";
@@ -77,6 +78,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#fdf6e9" />
       </head>
       <body className="font-[family-name:var(--font-body)] bg-background text-foreground min-h-full antialiased">
+        <GrainOverlay />
         <UploadThingSSR />
         <Providers>
           <RootMotion>{children}</RootMotion>
